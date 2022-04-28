@@ -1,0 +1,141 @@
+{
+	"language-name": "Magyar",
+	
+	"_commentary": "_A kommentárok nem hasznosak a játékhoz, ez csak egy útmutató",
+	
+	"_commentary1": "Történet Mód Menüje",
+	
+	"weekScore": "HÉT PONTSZÁMA:",
+	
+	"_commentary2": "Szabadjáték menüje",
+	
+	"freeplayInfo1": "Nyomd meg a SZÓKÖZT hogy meghallgasd a zenét.",
+	"freeplayInfo2": "Nyomd meg a CTRL-t a Játékmenet-változtató menü megnyitásához.",
+	"freeplayInfo3": "Nyomd meg a RESET-et a pontszámod és pontosságod visszaállításához.",
+	"scoreText": "SZEMÉLYES LEGJOBB:",
+	
+	"_commentary3": "Játékmenet-változtatók a Szabadjáték/Történet mód menük",
+	
+	"scrolltype": "Nyilelhelyezes Tipusa",
+	"scrollspeed": "Nyilak gyorsasaga",
+	"healthgain": "Eleteroszerzes Ereje",
+	"healthloss": "EleterovesztEs Ereje",
+	"instakill": "Azonnali halál hiba eseten",
+	"practice": "Gyakorlas",
+	"botplay": "Botplay",
+	
+	"_commentary4": "Szünet menü",
+	
+	"resume": "Folytatas",
+	"restart": "Zene ujrainditasa",
+	"changeDiff": "Nehezseg megváltoztatasa",
+	"exit2Menu": "Vissza a menübe",
+	"leaveChart": "Nyilatrendezes elhagyasa",
+	"skipTime": "Ido atugrasa",
+	"endSong": "Befelyezni a zenet",
+	"toggPract": "Gyakorlas mod bekapcsolasa",
+	"toggBot": "Botplay bekapcsolasa",
+	
+	"_commentary5": "Beállítások",
+	
+	"language": "Nyelv",
+	"noteColors": "Nyilak szinei",
+	"controls": "Iranyitas",
+	"delayCombo": "Kesleltetes es kombinacio beallitasa",
+	"graphics": "Grafika",
+	"visualsUI": "Vizualis es felhasznaloi felulet",
+	"gameplay": "Jatekmenet",
+	
+	"_commentary6": "Nyilak színei menüje",
+	
+	"noteColorsSettings": "Arnyalat    Telitettseg  Fenyesseg",
+	
+	"_commentary7": "Irányítás menüje",
+	
+	"defaultKey": "Alapertelmezett billentyuk visszaallitasa",
+	"notes": "NYILAK",
+	"key": "BILLENTYU",
+	"keys": "BILLENTYUK",
+	"ui": "FELHASZNALOI FELULET",
+	"volume": "Hangero",
+	"debug": "HIBAKERESES",
+	"figure1": "Ra probal jonni",
+	"figure2": "ezekre.",
+	"up":"Fel",
+	"down":"Le",
+	"left":"Bal",
+	"right":"Jobb",
+	"center":"Kozep",
+	"reset": "Ujrakezdes",
+	"accept": "Elfogad",
+	"pause": "Szunet",
+	"mute": "Nema",
+	
+	"_commentary8": "Összes dolog",
+	
+	"back": "Vissza",
+	"none": "Nincs",
+	
+	"_commentary9": "Irányítás neve",
+	
+	"control.controlBckSpc":"BckSpc",
+	"controlSpace":"Szokoz",
+	"controlCaps":"Caps",
+	"controlPrtScrn":"PrtScrn",
+	"controlEnter":"Enter",
+	"controlEscape":"Escape",
+	
+	"_commentary10": "Grafikai beállítások menüje",
+	
+	"lowQuality": "Alacsony minoseg",
+	"lowQualityDesc": "Ha be van jelölve, kikapcsol pár részletet a háttérben,\ncsökkenti a betöltési időt és javítja a teljesítményt.",
+	"globalAntialiasing": "Elsimitas",
+	"globalAntialiasingDesc": "Ha nincs jelölve, kikapcsolja az élsimítást, javítja a teljesítményt\naz élesebb látványért.",
+	"framerate": "Kepsebesseg",
+	"framerateDesc": "Magától értetődő, nem?",
+	"onUnfocuPause": "Masra koncentralasi szunet",
+	"onUnfocuPauseDesc": "A játék megáll amikor egy másik ablakba lépsz.",
+	
+	"_commentary11": "Látható elemek beállításai",
+	
+	"noteSplashes": "Nyil frocskolese",
+	"noteSplashesDesc": "Ha nincs jelölve, a \"Sick!\" eredmény esetén nem mutatja a fröcskölést.",
+	"hideHUD": "Lathato elemek elrejtese",
+	"hideHUDDesc": "Ha jelölve van, elrejti a legtöbb látható részt.",
+	"timeBar": "Idosav:",
+	"timeBarDesc": "Mit mutasson az idősáv?",
+	"timeBarOpt": ["Hátralévő idő", "Eltelt idő", "Zene neve", "Kikapcsolva"],
+	"flashingLights": "Villogo fenyek",
+	"flashingLightsDesc": "Kapcsold ki, ha érzékeny vagy a villogó fényekre!",
+	"cameraZoom": "Kamera kozelites",
+	"cameraZoomDesc": "Ha nincs megjelölve, a kamera nem fog közelíteni pontszerzésnél.",
+	"textZoom": "Pontszam Szoveg Rakozelites talalaton",
+	"textZoomDesc": "Ha nincs megjelölve, kikapcsolja a pontszám szövegének közelítését\nvalahányszor rányomsz egy nyílra.",
+	"HPbarAlpha": "Eletcsik atlathatosaga",
+	"HPbarAlphaDesc": "Mennyire átlátszó legyenek az életcsík és az ikonok.",
+	"showFPS": "FPS szamlalo",
+	"showFPSDesc": "Ha nincs megjelölve, elrejti az FPS számlálót.",
+	"pauseMusic": "Szunet kozbeni zene:",
+	"pauseMusicDesc": "Melyik zenét szeretnéd hallgatni szünet közben?",
+	
+	"_commentary12": "Játékmenet beállításának menüje",
+	
+	"downScroll": "Also elrendezes",
+	"downScrollDesc": "Ha meg van jelölve, a nyilak Le mennek Fel helyett, elég egyszerű.",
+	"middleScroll": "Kozepso elrendezes",
+	"middleScrollDesc": "Ha meg van jelölve, a nyilaid középen fognak menni.",
+	"ghostTapping": "Szellemkoppintas",
+	"ghostTappingDesc": "Ha meg van jelölve, nem hibázol nyilakat nyomogatva\namíg nincs mit nyomni.",
+	"noAntimash": "Nincs Antimash",
+	"noAntimashDesc": "Ha meg van jelölve, az Antimash ki lesz kapcsolva.",
+	"noReset": "Ujrakezdes gomb kikapcsolasa",
+	"noResetDesc": "Ha meg van jelölve, újraindítást nyomva semmi nem fog történni.",
+	"hitsoundVolume": "Talalati hangok hangereje",
+	"hitsoundVolumeDesc": "A vicces nyilak \"Tick!\" hangot adnak ha megnyomod.",
+	"ratingOffset": "Egyenlites",
+	"ratingOffsetDesc": "Megváltoztatja, hogy milyen későn/korán kell nyomnod \"Sick!\" eléréséhez\nNagyobb érték azt jelenti, hogy később kell megnyomni.",
+	"hitWindow": "@[rating] Ablak eltalalasa",
+	"hitWindowDesc": "Megváltoztatja a megnyomási\nidőt \"@[rating]\" ezredmásodpercben.",
+	"safeFrames": "Biztonsagos teruletek",
+	"safeFramesDesc": "Megváltoztatja, hogy mekkora területed van\nmegnyomni a nyilat koraihoz vagy későihez."
+}

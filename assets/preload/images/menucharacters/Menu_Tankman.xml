@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="Menu_Tankman.png">
+	<!-- Created with Adobe Animate version 21.0.7.42652 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="M Tank Idle0000" x="0" y="0" width="424" height="554" frameX="-5" frameY="-18" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0001" x="0" y="0" width="424" height="554" frameX="-5" frameY="-18" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0002" x="424" y="0" width="427" height="555" frameX="-4" frameY="-17" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0003" x="424" y="0" width="427" height="555" frameX="-4" frameY="-17" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0004" x="851" y="0" width="424" height="560" frameX="-2" frameY="-12" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0005" x="851" y="0" width="424" height="560" frameX="-2" frameY="-12" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0006" x="1275" y="0" width="427" height="571" frameX="0" frameY="-1" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0007" x="1275" y="0" width="427" height="571" frameX="0" frameY="-1" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0008" x="0" y="571" width="429" height="571" frameX="0" frameY="-1" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0009" x="0" y="571" width="429" height="571" frameX="0" frameY="-1" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0010" x="429" y="571" width="429" height="572" frameX="0" frameY="0" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0011" x="429" y="571" width="429" height="572" frameX="0" frameY="0" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0012" x="429" y="571" width="429" height="572" frameX="0" frameY="0" frameWidth="431" frameHeight="572"/>
+	<SubTexture name="M Tank Idle0013" x="429" y="571" width="429" height="572" frameX="0" frameY="0" frameWidth="431" frameHeight="572"/>
+</TextureAtlas>

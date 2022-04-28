@@ -1,0 +1,11 @@
+English--en
+Français--fr
+Español--es
+Deutsch--de
+Italiano--it
+Português--pt
+Dansk--da
+Magyar--hu
+Slovenský--sk
+Polski--pl
+Le parlez d'Arra--ar
