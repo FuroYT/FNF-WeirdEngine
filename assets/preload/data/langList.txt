@@ -1,5 +1,0 @@
-English--en
-Francais--fr
-Deutsch--de
-Dansk--da
-Magyar--hu
