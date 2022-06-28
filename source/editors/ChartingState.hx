@@ -2655,8 +2655,8 @@ class ChartingState extends MusicBeatState
 		}
 		else
 		{
-			leftIcon.changeIcon(healthIconP1[0], (healthIconP1[1] == '1'));
-			rightIcon.changeIcon(healthIconP2[0], (healthIconP2[1] == '1'));
+			rightIcon.changeIcon(healthIconP1[0], (healthIconP1[1] == '1'));
+			leftIcon.changeIcon(healthIconP2[0], (healthIconP2[1] == '1'));
 			if (_song.notes[curSection].gfSection)
 				leftIcon.changeIcon('gf');
 		}
