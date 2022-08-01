@@ -59,7 +59,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.minValue = 60;
 		option.maxValue = 240;
 		option.changeValue = 1;
-		if (ClientPrefs.framerate == 'V-sync'){
+		if (ClientPrefs.framerate == 'V-Sync'){
 			option.displayFormat = '%v';
 		}
 		else

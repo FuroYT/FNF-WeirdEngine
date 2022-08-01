@@ -227,7 +227,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 								case 'fps':
 									curOption.displayFormat = '%v FPS';
 									descText.text = curOption.description;
-									if (curOption.getValue() == 'V-sync' && controls.UI_RIGHT){
+									if (curOption.getValue() == 'V-Sync' && controls.UI_RIGHT){
 										curOption.setValue(Math.round(60));
 										holdValue = 60;
 									}
@@ -235,7 +235,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 										holdValue = Math.round(curOption.getValue()) + add;
 										if (holdValue < curOption.minValue)
 										{
-											curOption.setValue('V-sync');
+											curOption.setValue('V-Sync');
 											curOption.displayFormat = '%v';
 											descText.text = curOption.description + ' [' + Std.string(ClientPrefs.vSyncFPS) + ' Hz (Refresh Rate)]';
 										}
@@ -284,7 +284,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 							switch (curOption.type)
 							{
 								case 'int' | 'fps':
-									if (curOption.getValue() != 'V-sync')
+									if (curOption.getValue() != 'V-Sync')
 										curOption.setValue(Math.round(holdValue));
 
 								case 'float' | 'percent':
@@ -367,7 +367,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			curSelected = 0;
 
 		descText.text = optionsArray[curSelected].description;
-		if (optionsArray[curSelected].type =='fps' && optionsArray[curSelected].getValue() == 'V-sync')
+		if (optionsArray[curSelected].type =='fps' && optionsArray[curSelected].getValue() == 'V-Sync')
 			descText.text += ' [' + Std.string(ClientPrefs.vSyncFPS) + ' Hz (Refresh Rate)]';
 		descText.screenCenter(Y);
 		descText.y += 270;

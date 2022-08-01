@@ -24,6 +24,7 @@ class ClientPrefs
 	public static var noteSplashes:Bool = true;
 	public static var lowQuality:Bool = false;
 	public static var framerate:Dynamic = #if desktop 'V-Sync' #else 60 #end;
+	//public static var framerate:Dynamic = 60;
 	public static var cursing:Bool = true;
 	public static var violence:Bool = true;
 	public static var camZooms:Bool = true;
@@ -249,6 +250,7 @@ class ClientPrefs
 	public static function loadPrefs()
 	{
 		vSyncFPS = Math.round(Application.current.window.displayMode.refreshRate);
+		trace(vSyncFPS);
 
 		if (FlxG.save.data.downScroll != null)
 		{
@@ -292,23 +294,25 @@ class ClientPrefs
 		if (FlxG.save.data.framerate != null)
 		{
 			framerate = FlxG.save.data.framerate;
-
-			if (framerate == 'V-sync')
-				curFramerate = vSyncFPS;
-			else
-				curFramerate = Math.round(framerate);
-
-			if (curFramerate > FlxG.drawFramerate)
-			{
-				FlxG.updateFramerate = curFramerate;
-				FlxG.drawFramerate = curFramerate;
-			}
-			else
-			{
-				FlxG.drawFramerate = curFramerate;
-				FlxG.updateFramerate = curFramerate;
-			}
 		}
+
+		if (framerate == 'V-Sync'){
+			curFramerate = vSyncFPS;
+		}
+		else
+			curFramerate = Math.round(framerate);
+
+		if (curFramerate > FlxG.drawFramerate)
+		{
+			FlxG.updateFramerate = curFramerate;
+			FlxG.drawFramerate = curFramerate;
+		}
+		else
+		{
+			FlxG.drawFramerate = curFramerate;
+			FlxG.updateFramerate = curFramerate;
+		}
+
 		/*if(FlxG.save.data.cursing != null) {
 				cursing = FlxG.save.data.cursing;
 			}
