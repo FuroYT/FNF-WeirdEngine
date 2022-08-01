@@ -107,7 +107,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeFramerate()
 	{
-		if (ClientPrefs.framerate == 'V-sync'){
+		if (ClientPrefs.framerate == 'V-Sync'){
 			ClientPrefs.curFramerate = ClientPrefs.vSyncFPS;
 		}
 		else 
