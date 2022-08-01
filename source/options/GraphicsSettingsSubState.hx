@@ -14,7 +14,6 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.utils.Assets;
 import flixel.FlxSubState;
-import flash.text.TextField;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.util.FlxSave;
@@ -25,16 +24,20 @@ import flixel.util.FlxTimer;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
+import ClientPrefs;
 import openfl.Lib;
 
 using StringTools;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
 {
+	//var outpusDevices:Array<String>;
 	public function new()
 	{
 		title = Language.graphics;
 		rpcTitle = 'Graphics Settings Menu'; // for Discord Rich Presence
+
+		//outpusDevices = flash.media.AudioDeviceManager.deviceNames;
 
 		// I'd suggest using "Low Quality" as an example for making your own option since it is the simplest here
 		var option:Option = new Option(Language.lowQuality, // Name
@@ -50,13 +53,29 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		#if !html5 // Apparently other framerates isn't correctly supported on Browser? Probably it has some V-Sync shit enabled by default, idk
-		var option:Option = new Option(Language.framerate, Language.framerateDesc, 'framerate', 'int', 60);
+		var option:Option = new Option(Language.framerate, Language.framerateDesc, 'framerate', 'fps',  #if desktop 'V-Sync' #else 60 #end);
 		addOption(option);
 
 		option.minValue = 60;
 		option.maxValue = 240;
-		option.displayFormat = '%v FPS';
+		option.changeValue = 1;
+		if (ClientPrefs.framerate == 'V-sync'){
+			option.displayFormat = '%v';
+		}
+		else
+			option.displayFormat = '%v FPS';
 		option.onChange = onChangeFramerate;
+		#end
+
+		#if desktop
+		var option:Option = new Option(Language.onUnfocuPause, Language.onUnfocuPauseDesc, 'unfocuPause', 'bool', true);
+		option.onChange = onChangeFocus; // Changing onChange is only needed if you want to make a special interaction after it changes the value
+		addOption(option);
+
+		/*
+		var option:Option = new Option('audioOutput', 'audioOutputDesc', 'music', 'string', outpusDevices[0], outpusDevices);
+		addOption(option);
+		option.onChange = onChangeAudioOutput;*/
 		#end
 
 		/*
@@ -88,15 +107,33 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeFramerate()
 	{
-		if (ClientPrefs.framerate > FlxG.drawFramerate)
+		if (ClientPrefs.framerate == 'V-sync'){
+			ClientPrefs.curFramerate = ClientPrefs.vSyncFPS;
+		}
+		else 
+			ClientPrefs.curFramerate = Math.round(ClientPrefs.framerate);
+
+		if (ClientPrefs.curFramerate > FlxG.drawFramerate)
 		{
-			FlxG.updateFramerate = ClientPrefs.framerate;
-			FlxG.drawFramerate = ClientPrefs.framerate;
+			FlxG.updateFramerate = ClientPrefs.curFramerate;
+			FlxG.drawFramerate = ClientPrefs.curFramerate;
 		}
 		else
 		{
-			FlxG.drawFramerate = ClientPrefs.framerate;
-			FlxG.updateFramerate = ClientPrefs.framerate;
+			FlxG.drawFramerate = ClientPrefs.curFramerate;
+			FlxG.updateFramerate = ClientPrefs.curFramerate;
 		}
+	}
+
+	function onChangeFocus()
+	{
+		#if desktop
+		FlxG.autoPause = ClientPrefs.unfocuPause;
+		#end
+	}
+
+	function onChangeAudioOutput()
+	{
+		trace('output changed');
 	}
 }

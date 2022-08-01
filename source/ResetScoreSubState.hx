@@ -2,6 +2,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.util.FlxColor;
+import flixel.addons.transition.FlxTransitionableState;
 
 using StringTools;
 
@@ -17,15 +18,13 @@ class ResetScoreSubState extends MusicBeatSubstate
 	var song:String;
 	var difficulty:Int;
 	var week:Int;
-	var hasWinIcon:Bool;
 
 	// Week -1 = Freeplay
-	public function new(song:String, difficulty:Int, character:String, week:Int = -1, hasWinIcon:Bool = false)
+	public function new(song:String, difficulty:Int, character:String, week:Int = -1)
 	{
 		this.song = song;
 		this.difficulty = difficulty;
 		this.week = week;
-		this.hasWinIcon = hasWinIcon;
 
 		super();
 
@@ -53,7 +52,7 @@ class ResetScoreSubState extends MusicBeatSubstate
 		text.alpha = 0;
 		add(text);
 		if(week == -1) {
-			icon = new HealthIcon(character, false, hasWinIcon);
+			icon = new HealthIcon(character, false);
 			icon.setGraphicSize(Std.int(icon.width * tooLong));
 			icon.updateHitbox();
 			icon.setPosition(text.x - icon.width + (10 * tooLong), text.y - 30);
@@ -70,6 +69,11 @@ class ResetScoreSubState extends MusicBeatSubstate
 		noText.x += 200;
 		add(noText);
 		updateOptions();
+
+		#if android
+		addVirtualPad(LEFT_RIGHT, A_B);
+		addPadCamera();
+		#end
 	}
 
 	override function update(elapsed:Float)
@@ -90,7 +94,12 @@ class ResetScoreSubState extends MusicBeatSubstate
 		}
 		if(controls.BACK) {
 			FlxG.sound.play(Paths.themeSound('cancelMenu'), 1);
-			close();
+			#if android
+				FlxTransitionableState.skipNextTransOut = true;
+				FlxG.resetState();
+			#else
+				close();
+			#end
 		} else if(controls.ACCEPT) {
 			if(onYes) {
 				if(week == -1) {
@@ -100,7 +109,12 @@ class ResetScoreSubState extends MusicBeatSubstate
 				}
 			}
 			FlxG.sound.play(Paths.themeSound('cancelMenu'), 1);
-			close();
+			#if android
+				FlxTransitionableState.skipNextTransOut = true;
+				FlxG.resetState();
+			#else
+				close();
+			#end
 		}
 		super.update(elapsed);
 	}

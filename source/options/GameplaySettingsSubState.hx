@@ -34,6 +34,23 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		title = Language.gameplay;
 		rpcTitle = 'Gameplay Settings Menu'; //for Discord Rich Presence
 
+			#if android
+		var option:Option = new Option(Language.keyboardMode,
+			Language.keyboardModeDesc,
+			'keyboardMode',
+			'bool',
+			false);
+		addOption(option);
+			#end
+		
+		/*
+		var option:Option = new Option('Controller Mode',
+			'Check this if you want to play with\na controller instead of using your Keyboard.',
+			'controllerMode',
+			'bool',
+			false);
+		addOption(option);*/
+
 		//I'd suggest using "Downscroll" as an example for making your own option since it is the simplest here
 		var option:Option = new Option(Language.downScroll, //Name
 			Language.downScrollDesc, //Description
@@ -47,6 +64,13 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'middleScroll',
 			'bool',
 			false);
+		addOption(option);
+		
+		var option:Option = new Option(Language.oppNotes,
+			Language.oppNotesDesc,
+			'opponentStrums',
+			'bool',
+			true);
 		addOption(option);
 
 		var option:Option = new Option(Language.ghostTapping,
@@ -63,6 +87,14 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			false);
 		addOption(option); //now shut up before i put you in my basement
 		// PD: i dont have a basement
+
+		var option:Option = new Option(Language.soundEffectVolume, Language.soundEffectVolumeDesc, 'soundEffectVolume', 'percent', 1);
+		option.scrollSpeed = 1.6;
+		option.minValue = 0.0;
+		option.maxValue = 1;
+		option.changeValue = 0.1;
+		option.decimals = 1;
+		addOption(option);
 
 		var option:Option = new Option(Language.noReset,
 			Language.noResetDesc,

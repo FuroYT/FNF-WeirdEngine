@@ -20,9 +20,18 @@ class StrumNote extends FlxSprite
 	private var skinThingFix:Array<String> = ['static', 'pressed'];
 	
 	public var texture(default, set):String = null;
+	public var isPixel(default, set):Bool = false;
 	private function set_texture(value:String):String {
 		if(texture != value) {
 			texture = value;
+			reloadNote();
+		}
+		return value;
+	}
+
+	private function set_isPixel(value:Bool):Bool {
+		if(isPixel != value) {
+			isPixel = value;
 			reloadNote();
 		}
 		return value;
@@ -48,6 +57,7 @@ class StrumNote extends FlxSprite
 		//if(PlayState.isPixelStage) skin = 'PIXEL_' + skin;
 		if(PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) skin = PlayState.SONG.arrowSkin;
 		texture = skin; //Load texture and anims
+		isPixel = PlayState.isPixelStage; //Load texture and anims
 
 		scrollFactor.set();
 	}
@@ -57,7 +67,7 @@ class StrumNote extends FlxSprite
 		var lastAnim:String = null;
 		if(animation.curAnim != null) lastAnim = animation.curAnim.name;
 
-		if(PlayState.isPixelStage)
+		if(isPixel)
 			{
 				loadGraphic(Paths.image('pixelUI/' + texture));
 				if (PlayState.mania == 3 && width == 68) {
@@ -99,13 +109,25 @@ class StrumNote extends FlxSprite
 
 				setGraphicSize(Std.int(width * Note.scales[PlayState.mania]));
 
-				animation.addByPrefix('static', 'arrow' + skinThing[0]);
+				animation.addByPrefix('static', 'arrow ' + skinThing[1]);
+				if (animation.getByName('static') == null)
+					animation.addByPrefix('static', 'arrow' + skinThing[0]);
+
 				animation.addByPrefix('pressed', skinThing[1] + ' press', 24, false);
 				if (animation.getByName('pressed') == null)
+					animation.addByPrefix('pressed', skinThing[0].toLowerCase() + ' press', 24, false);
+				if (animation.getByName('pressed') == null)
 					animation.addByPrefix('pressed', skinThingFix[1] + ' press', 24, false);
+				if (animation.getByName('pressed') == null)
+					animation.addByPrefix('pressed', skinThingFix[0].toLowerCase() + ' press', 24, false);
+
 				animation.addByPrefix('confirm', skinThing[1] + ' confirm', 24, false);
 				if (animation.getByName('confirm') == null)
+					animation.addByPrefix('confirm', skinThing[0].toLowerCase() + ' confirm', 24, false);
+				if (animation.getByName('confirm') == null)
 					animation.addByPrefix('confirm', skinThingFix[1] + ' confirm', 24, false);
+				if (animation.getByName('confirm') == null)
+					animation.addByPrefix('confirm', skinThingFix[0].toLowerCase() + ' confirm', 24, false);
 			}
 
 		updateHitbox();
@@ -142,7 +164,7 @@ class StrumNote extends FlxSprite
 			}
 		}
 		if(animation.curAnim != null){ //my bad i was upset
-			if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
+			if(animation.curAnim.name == 'confirm' && !isPixel) {
 				centerOrigin();
 			}
 		}
@@ -159,11 +181,11 @@ class StrumNote extends FlxSprite
 			colorSwap.saturation = 0;
 			colorSwap.brightness = 0;
 		} else {
-			colorSwap.hue = ClientPrefs.arrowHSV[Std.int(Note.keysShit.get(PlayState.mania).get('pixelAnimIndex')[noteData] % Note.ammo[PlayState.mania])][0] / 360;
-			colorSwap.saturation = ClientPrefs.arrowHSV[Std.int(Note.keysShit.get(PlayState.mania).get('pixelAnimIndex')[noteData] % Note.ammo[PlayState.mania])][1] / 100;
-			colorSwap.brightness = ClientPrefs.arrowHSV[Std.int(Note.keysShit.get(PlayState.mania).get('pixelAnimIndex')[noteData] % Note.ammo[PlayState.mania])][2] / 100;
+			colorSwap.hue = ClientPrefs.arrowHSV.get(Note.keysShit.get(PlayState.mania).get('letters')[noteData])[0] / 360;
+			colorSwap.saturation = ClientPrefs.arrowHSV.get(Note.keysShit.get(PlayState.mania).get('letters')[noteData])[1] / 100;
+			colorSwap.brightness = ClientPrefs.arrowHSV.get(Note.keysShit.get(PlayState.mania).get('letters')[noteData])[2] / 100;
 
-			if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
+			if(animation.curAnim.name == 'confirm' && !isPixel) {
 				centerOrigin();
 			}
 		}

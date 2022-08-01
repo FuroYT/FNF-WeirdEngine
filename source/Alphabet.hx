@@ -26,7 +26,6 @@ class Alphabet extends FlxSpriteGroup
 	public var xAdd:Float = 0;
 	public var yAdd:Float = 0;
 	public var isMenuItem:Bool = false;
-	public var isLangItem:Bool = false;
 	public var textSize:Float = 1.0;
 
 	public var text:String = "";
@@ -130,10 +129,11 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces++;
 			}
 
+			var isSpecialChar:Bool = AlphaCharacter.specialChar.indexOf(character.toLowerCase()) != -1;
 			var isNumber:Bool = AlphaCharacter.numbers.indexOf(character) != -1;
 			var isSymbol:Bool = AlphaCharacter.symbols.indexOf(character) != -1;
 			var isAlphabet:Bool = AlphaCharacter.alphabet.indexOf(character.toLowerCase()) != -1;
-			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
+			if ((isAlphabet || isSymbol || isNumber || isSpecialChar) && (!isBold || !spaceChar))
 			{
 				if (lastSprite != null)
 				{
@@ -200,12 +200,14 @@ class Alphabet extends FlxSpriteGroup
 	public var curRow:Int = 0;
 	var dialogueSound:FlxSound = null;
 	private static var soundDialog:Sound = null;
+	private static var voicelineDialog:Bool = false;
 	var consecutiveSpaces:Int = 0;
-	public static function setDialogueSound(name:String = '')
+	public static function setDialogueSound(name:String = '', ?voiceline:Bool = false)
 	{
 		if (name == null || name.trim() == '') name = 'dialogue';
 		soundDialog = Paths.sound(name);
 		if(soundDialog == null) soundDialog = Paths.sound('dialogue');
+		voicelineDialog = voiceline;
 	}
 
 	var typeTimer:FlxTimer = null;
@@ -225,8 +227,10 @@ class Alphabet extends FlxSpriteGroup
 			while(!finishedText) { 
 				timerCheck();
 			}
-			if(dialogueSound != null) dialogueSound.stop();
-			dialogueSound = FlxG.sound.play(soundDialog);
+			if (!voicelineDialog) {
+				if(dialogueSound != null) dialogueSound.stop();
+				dialogueSound = FlxG.sound.play(soundDialog);
+			}
 		} else {
 			typeTimer = new FlxTimer().start(0.1, function(tmr:FlxTimer) {
 				typeTimer = new FlxTimer().start(speed, function(tmr:FlxTimer) {
@@ -263,11 +267,12 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces++;
 			}
 
+			var isSpecialChar:Bool = AlphaCharacter.specialChar.indexOf(splitWords[loopNum].toLowerCase()) != -1;
 			var isNumber:Bool = AlphaCharacter.numbers.indexOf(splitWords[loopNum]) != -1;
 			var isSymbol:Bool = AlphaCharacter.symbols.indexOf(splitWords[loopNum]) != -1;
 			var isAlphabet:Bool = AlphaCharacter.alphabet.indexOf(splitWords[loopNum].toLowerCase()) != -1;
 
-			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
+			if ((isAlphabet || isSymbol || isNumber || isSpecialChar) && (!isBold || !spaceChar))
 			{
 				if (lastSprite != null && !xPosResetted)
 				{
@@ -359,19 +364,6 @@ class Alphabet extends FlxSpriteGroup
 			}
 		}
 
-		if (isLangItem)
-		{
-			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
-
-			var lerpVal:Float = CoolUtil.boundTo(elapsed * 9.6, 0, 1);
-			y = FlxMath.lerp(y, (scaledY * yMult) + (FlxG.height * 0.48) + yAdd, lerpVal);
-			if(forceX != Math.NEGATIVE_INFINITY) {
-				x = forceX;
-			} else {
-				x = FlxMath.lerp(x, (targetY * 20) + 240 + xAdd, lerpVal);
-			}
-		}
-
 		super.update(elapsed);
 	}
 
@@ -387,6 +379,8 @@ class Alphabet extends FlxSpriteGroup
 class AlphaCharacter extends FlxSprite
 {
 	public static var alphabet:String = "abcdefghijklmnopqrstuvwxyz";
+
+	public static var specialChar:String = "üéâäàåçêëèïîìæôöòûùÿáóúñő";
 
 	public static var numbers:String = "1234567890";
 
@@ -413,6 +407,15 @@ class AlphaCharacter extends FlxSprite
 		animation.addByPrefix(letter, letter.toUpperCase() + " bold", 24);
 		animation.play(letter);
 		updateHitbox();
+		switch (letter.toLowerCase())
+		{
+			case 'ä':
+				y -= 16 * textSize;
+			case 'å':
+				y -= 21 * textSize;
+			case 'é' | 'ô' | 'î' | 'à' | 'ñ' | 'ö':
+				y -= 20 * textSize;
+		}
 	}
 
 	public function createBoldNumber(letter:String):Void
@@ -451,13 +454,13 @@ class AlphaCharacter extends FlxSprite
 				//x -= 35 - (90 * (1.0 - textSize));
 				y += 20 * textSize;
 			case '(':
-				x -= 65 * textSize;
+				//x -= 65 * textSize;
 				y -= 5 * textSize;
-				offset.x = -58 * textSize;
+				//offset.x = -116 * textSize;
 			case ')':
-				x -= 20 / textSize;
+				//x -= 20 / textSize;
 				y -= 5 * textSize;
-				offset.x = 12 * textSize;
+				//offset.x = 14 * textSize;
 			case '.':
 				y += 45 * textSize;
 				x += 5 * textSize;
@@ -479,6 +482,11 @@ class AlphaCharacter extends FlxSprite
 
 		y = (110 - height);
 		y += row * 60;
+		switch (letter.toLowerCase())
+		{
+			case 'ç':
+				y += 23 * textSize;
+		}
 	}
 
 	public function createNumber(letter:String):Void
@@ -522,6 +530,8 @@ class AlphaCharacter extends FlxSprite
 		{
 			case "'":
 				y -= 20;
+			case ",":
+				y += 10;
 			case '-':
 				//x -= 35 - (90 * (1.0 - textSize));
 				y -= 16;

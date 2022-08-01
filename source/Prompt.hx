@@ -4,7 +4,11 @@ import flixel.FlxSubState;
 import flixel.addons.ui.FlxUIButton;
 import flixel.addons.ui.FlxUIPopup;
 import flixel.text.FlxText;
+#if android
+import android.flixel.FlxButton;
+#else
 import flixel.ui.FlxButton;
+#end
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import openfl.display.BitmapData;
@@ -27,6 +31,7 @@ class Prompt extends MusicBeatSubstate
 	var panelbg:FlxSprite;
 	var buttonAccept:FlxButton;
 	var buttonNo:FlxButton;
+	var hasButtonNo:Bool = true;
 	var cornerSize:Int = 10;
 	public function new(promptText:String='', defaultSelected:Int = 0, okCallback:Void->Void, cancelCallback:Void->Void,acceptOnDefault:Bool=false,option1:String=null,option2:String=null) 
 	{
@@ -43,6 +48,8 @@ class Prompt extends MusicBeatSubstate
 		if (option2 != null) op2 = option2;
 		buttonAccept = new FlxButton(473.3, 450, op1, function(){if(okc != null)okc();
 		close();} );
+		if (option2 == "")
+			hasButtonNo = false;
 		buttonNo = new FlxButton(633.3,450,op2,function(){if(cancelc != null)cancelc();
 		close();});
 		super();	
@@ -61,7 +68,7 @@ class Prompt extends MusicBeatSubstate
 		panel = new FlxSprite(0, 0);
 		panelbg = new FlxSprite(0, 0);
 		makeSelectorGraphic(panel,300,150,0xff999999);
-		makeSelectorGraphic(panelbg,302,165,0xff000000);
+		makeSelectorGraphic(panelbg,304,154,0xff000000);
 		//panel.makeGraphic(300, 150, 0xff999999);
 		//panel.loadGraphic(Paths.image('ui/promptbg'));
 		/*
@@ -85,9 +92,14 @@ class Prompt extends MusicBeatSubstate
 		add(textshit);
 		textshit.screenCenter();
 		buttonAccept.screenCenter();
-		buttonNo.screenCenter();
-		buttonAccept.x -= buttonNo.width/1.5;
 		buttonAccept.y = panel.y + panel.height-30;
+		buttonNo.screenCenter();
+		if (hasButtonNo) {
+			buttonAccept.x -= buttonNo.width/1.5;
+		}
+		else {
+			buttonNo.visible = false;
+		}
 		buttonNo.x += buttonNo.width/1.5;
 		buttonNo.y = panel.y + panel.height-30;
 		textshit.scrollFactor.set();

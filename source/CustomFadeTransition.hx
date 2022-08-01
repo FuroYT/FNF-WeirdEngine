@@ -64,6 +64,8 @@ class CustomFadeTransition extends MusicBeatSubstate {
 			transGradient.cameras = [nextCamera];
 		}
 		nextCamera = null;
+
+		canFullscreen = false;
 	}
 
 	override function update(elapsed:Float) {

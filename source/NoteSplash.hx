@@ -17,20 +17,37 @@ class NoteSplash extends FlxSprite
 		var skin:String = 'noteSplashes';
 		if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) skin = PlayState.SONG.splashSkin;
 
+		NoteSplashData.loadProperties(skin);
+
 		loadAnims(skin);
 		
 		colorSwap = new ColorSwap();
 		shader = colorSwap.shader;
 
 		setupNoteSplash(x, y, note);
-		antialiasing = ClientPrefs.globalAntialiasing;
+		if (NoteSplashData.splashesAntialiasing == false)
+			antialiasing = false;
+		else
+			antialiasing = ClientPrefs.globalAntialiasing;
 	}
 
 	public function setupNoteSplash(x:Float, y:Float, note:Int = 0, texture:String = null, hueColor:Float = 0, satColor:Float = 0, brtColor:Float = 0) {
-		setPosition(x - Note.swagWidth * 0.95, y - Note.swagWidth);
-		setGraphicSize(Std.int(width * sc[PlayState.mania]));
+		NoteSplashData.loadProperties(texture);
 
-		alpha = 0.6;
+		if (NoteSplashData.centerToStrum)
+			y = PlayState.instance.playerStrums.members[note].y;
+		else
+			y = y - Note.swagWidth;
+
+		setPosition(x - Note.swagWidth * 0.95, y);
+		setGraphicSize(Std.int(width * sc[PlayState.mania] * NoteSplashData.size));
+
+		alpha = NoteSplashData.splashesAlpha;
+
+		if (NoteSplashData.splashesAntialiasing == false)
+			antialiasing = false;
+		else
+			antialiasing = ClientPrefs.globalAntialiasing;
 
 		if(texture == null) {
 			texture = 'noteSplashes';
@@ -40,17 +57,28 @@ class NoteSplash extends FlxSprite
 		if(textureLoaded != texture) {
 			loadAnims(texture);
 		}
-		colorSwap.hue = hueColor;
-		colorSwap.saturation = satColor;
-		colorSwap.brightness = brtColor;
 
-		var offsets:Array<Int> = [Note.offsets[PlayState.mania][0], Note.offsets[PlayState.mania][1]];
+		if (NoteSplashData.ignoreColor){
+			colorSwap.hue = 0;
+			colorSwap.saturation = 0;
+			colorSwap.brightness = 0;
+		}
+		else {
+			colorSwap.hue = hueColor;
+			colorSwap.saturation = satColor;
+			colorSwap.brightness = brtColor;
+		}
+
+		var offsets:Array<Int> = [Std.int(Note.offsets[PlayState.mania][0] - NoteSplashData.offsetX), Std.int(Note.offsets[PlayState.mania][1] - NoteSplashData.offsetY)];
 		offset.set(offsets[0], offsets[1]);
 
 		var animNum:Int = FlxG.random.int(1, 2);
 
-		animation.play('note' + Note.keysShit.get(PlayState.mania).get('pixelAnimIndex')[note] + '-' + animNum, true);
-		if(animation.curAnim != null)animation.curAnim.frameRate = 24 + FlxG.random.int(-2, 2);
+		if (animation.getByName('note' + Note.keysShit.get(PlayState.mania).get('pixelAnimIndex')[note] + '-' + animNum) == null)
+			animation.play(texture, true);
+		else
+			animation.play('note' + Note.keysShit.get(PlayState.mania).get('pixelAnimIndex')[note] + '-' + animNum, true);
+		if(animation.curAnim != null)animation.curAnim.frameRate = NoteSplashData.fps + FlxG.random.int(-NoteSplashData.fpsVariation, NoteSplashData.fpsVariation);
 	}
 
 	function loadAnims(skin:String) {
@@ -83,6 +111,7 @@ class NoteSplash extends FlxSprite
 			animation.addByPrefix('note16-' + i, 'note splash Q ' + i, 24, false);
 			animation.addByPrefix('note17-' + i, 'note splash R ' + i, 24, false);
 			//animation.addByPrefix('note9-' + i, 'note splash E ' + i, 24, false);
+			animation.addByPrefix(skin, skin, 24, false);
 		}
 	}
 

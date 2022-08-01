@@ -177,26 +177,34 @@ class WeekEditorState extends MusicBeatState
 		tab_group.name = "Week";
 		
 		songsInputText = new FlxUIInputText(10, 30, 200, '', 8);
+		songsInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(songsInputText);
 
 		opponentInputText = new FlxUIInputText(10, songsInputText.y + 40, 70, '', 8);
+		opponentInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(opponentInputText);
 		boyfriendInputText = new FlxUIInputText(opponentInputText.x + 75, opponentInputText.y, 70, '', 8);
+		boyfriendInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(boyfriendInputText);
 		girlfriendInputText = new FlxUIInputText(boyfriendInputText.x + 75, opponentInputText.y, 70, '', 8);
+		girlfriendInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(girlfriendInputText);
 
 		backgroundInputText = new FlxUIInputText(10, opponentInputText.y + 40, 120, '', 8);
+		backgroundInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(backgroundInputText);
 		
 
 		displayNameInputText = new FlxUIInputText(10, backgroundInputText.y + 60, 200, '', 8);
+		displayNameInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(backgroundInputText);
 
 		weekNameInputText = new FlxUIInputText(10, displayNameInputText.y + 60, 150, '', 8);
+		weekNameInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(weekNameInputText);
 
 		weekFileInputText = new FlxUIInputText(10, weekNameInputText.y + 40, 100, '', 8);
+		weekFileInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(weekFileInputText);
 		reloadWeekThing();
 
@@ -228,6 +236,7 @@ class WeekEditorState extends MusicBeatState
 
 	var weekBeforeInputText:FlxUIInputText;
 	var difficultiesInputText:FlxUIInputText;
+	var playablesCharInputText:FlxUIInputText;
 	var lockedCheckbox:FlxUICheckBox;
 	var hiddenUntilUnlockCheckbox:FlxUICheckBox;
 
@@ -251,16 +260,25 @@ class WeekEditorState extends MusicBeatState
 		hiddenUntilUnlockCheckbox.alpha = 0.4;
 
 		weekBeforeInputText = new FlxUIInputText(10, hiddenUntilUnlockCheckbox.y + 55, 100, '', 8);
+		weekBeforeInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(weekBeforeInputText);
 
 		difficultiesInputText = new FlxUIInputText(10, weekBeforeInputText.y + 60, 200, '', 8);
+		difficultiesInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(difficultiesInputText);
+
+		playablesCharInputText = new FlxUIInputText(10, difficultiesInputText.y + 100, 200, '', 8);
+		playablesCharInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
+		blockPressWhileTypingOn.push(playablesCharInputText);
 		
 		tab_group.add(new FlxText(weekBeforeInputText.x, weekBeforeInputText.y - 28, 0, 'Week File name of the Week you have\nto finish for Unlocking:'));
 		tab_group.add(new FlxText(difficultiesInputText.x, difficultiesInputText.y - 20, 0, 'Difficulties:'));
 		tab_group.add(new FlxText(difficultiesInputText.x, difficultiesInputText.y + 20, 0, 'Default difficulties are "Easy, Normal, Hard"\nwithout quotes.'));
+		tab_group.add(new FlxText(playablesCharInputText.x, playablesCharInputText.y - 20, 0, 'Playable Character List:'));
+		tab_group.add(new FlxText(playablesCharInputText.x, playablesCharInputText.y + 20, 0, 'Use "Your character name" to add you character\nto the list, for exapmle, use "pico, spooky" to\nadd Pico and Skid and Pump'));
 		tab_group.add(weekBeforeInputText);
 		tab_group.add(difficultiesInputText);
+		tab_group.add(playablesCharInputText);
 		tab_group.add(hiddenUntilUnlockCheckbox);
 		tab_group.add(lockedCheckbox);
 		UI_box.addGroup(tab_group);
@@ -288,6 +306,9 @@ class WeekEditorState extends MusicBeatState
 
 		difficultiesInputText.text = '';
 		if(weekFile.difficulties != null) difficultiesInputText.text = weekFile.difficulties;
+
+		playablesCharInputText.text = '';
+		if(weekFile.weekPlayableCharacter != null) playablesCharInputText.text = weekFile.weekPlayableCharacter;
 
 		lockedCheckbox.checked = !weekFile.startUnlocked;
 		lock.visible = lockedCheckbox.checked;
@@ -415,6 +436,8 @@ class WeekEditorState extends MusicBeatState
 				weekFile.weekBefore = weekBeforeInputText.text.trim();
 			} else if(sender == difficultiesInputText) {
 				weekFile.difficulties = difficultiesInputText.text.trim();
+			} else if(sender == playablesCharInputText) {
+				weekFile.weekPlayableCharacter = playablesCharInputText.text.trim();
 			}
 		}
 	}
@@ -445,9 +468,11 @@ class WeekEditorState extends MusicBeatState
 			FlxG.sound.muteKeys = TitleState.muteKeys;
 			FlxG.sound.volumeDownKeys = TitleState.volumeDownKeys;
 			FlxG.sound.volumeUpKeys = TitleState.volumeUpKeys;
-			if(FlxG.keys.justPressed.ESCAPE) {
+			if(FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end) {
+				Paths.currentModSelectedDirectory = Paths.currentModDirectory;
+				Paths.currentModDirectory = ThemeLoader.themeMod;
 				MusicBeatState.switchState(new editors.MasterEditorMenu());
-				FlxG.sound.playMusic(Paths.themeMusic('freakyMenu'));
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}
 		}
 
@@ -537,11 +562,15 @@ class WeekEditorState extends MusicBeatState
 		var data:String = Json.stringify(weekFile, "\t");
 		if (data.length > 0)
 		{
+                        #if android
+                        SUtil.saveContent(weekFileName, ".json", data);
+                        #else
 			_file = new FileReference();
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 			_file.save(data, weekFileName + ".json");
+                        #end
 		}
 	}
 	
@@ -589,6 +618,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 	}
 
 	var bg:FlxSprite;
+	var bgInvert:FlxSprite;
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var iconArray:Array<HealthIcon> = [];
 
@@ -598,8 +628,14 @@ class WeekEditorFreeplayState extends MusicBeatState
 		bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.antialiasing = ClientPrefs.globalAntialiasing;
 
+		bgInvert = new FlxSprite().loadGraphic(Paths.image('menuInvert'));
+		bgInvert.antialiasing = ClientPrefs.globalAntialiasing;
+		bgInvert.visible = false;
+
 		bg.color = FlxColor.WHITE;
 		add(bg);
+		bgInvert.color = FlxColor.WHITE;
+		add(bgInvert);
 
 		grpSongs = new FlxTypedGroup<Alphabet>();
 		add(grpSongs);
@@ -611,7 +647,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 			songText.targetY = i;
 			grpSongs.add(songText);
 
-			var icon:HealthIcon = new HealthIcon(weekFile.songs[i][1]);
+			var icon:HealthIcon = new HealthIcon(weekFile.songs[i][1], weekFile.songs[i][4]);
 			icon.sprTracker = songText;
 
 			// using a FlxGroup is too much fuss!
@@ -625,6 +661,11 @@ class WeekEditorFreeplayState extends MusicBeatState
 
 		addEditorBox();
 		changeSelection();
+
+                #if android
+                addVirtualPad(UP_DOWN, NONE);
+                #end
+
 		super.create();
 	}
 	
@@ -685,6 +726,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 	var bgColorStepperG:FlxUINumericStepper;
 	var bgColorStepperB:FlxUINumericStepper;
 	var iconInputText:FlxUIInputText;
+	var invertBGCheckbox:FlxUICheckBox;
 	function addFreeplayUI() {
 		var tab_group = new FlxUI(null, UI_box);
 		tab_group.name = "Freeplay";
@@ -719,6 +761,14 @@ class WeekEditorFreeplayState extends MusicBeatState
 		});
 
 		iconInputText = new FlxUIInputText(10, bgColorStepperR.y + 70, 100, '', 8);
+		iconInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
+
+		invertBGCheckbox = new FlxUICheckBox(iconInputText.x + 120, iconInputText.y, null, null, "Inverted", 100);
+		invertBGCheckbox.checked = weekFile.songs[curSelected][3];
+		invertBGCheckbox.callback = function()
+		{
+			updateBG();
+		};
 
 		var hideFreeplayCheckbox:FlxUICheckBox = new FlxUICheckBox(10, iconInputText.y + 30, null, null, "Hide Week from Freeplay?", 100);
 		hideFreeplayCheckbox.checked = weekFile.hideFreeplay;
@@ -735,6 +785,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 		tab_group.add(copyColor);
 		tab_group.add(pasteColor);
 		tab_group.add(iconInputText);
+		tab_group.add(invertBGCheckbox);
 		tab_group.add(hideFreeplayCheckbox);
 		UI_box.addGroup(tab_group);
 	}
@@ -743,7 +794,10 @@ class WeekEditorFreeplayState extends MusicBeatState
 		weekFile.songs[curSelected][2][0] = Math.round(bgColorStepperR.value);
 		weekFile.songs[curSelected][2][1] = Math.round(bgColorStepperG.value);
 		weekFile.songs[curSelected][2][2] = Math.round(bgColorStepperB.value);
+		weekFile.songs[curSelected][3] = invertBGCheckbox.checked;
 		bg.color = FlxColor.fromRGB(weekFile.songs[curSelected][2][0], weekFile.songs[curSelected][2][1], weekFile.songs[curSelected][2][2]);
+		bgInvert.color = FlxColor.fromRGB(weekFile.songs[curSelected][2][0], weekFile.songs[curSelected][2][1], weekFile.songs[curSelected][2][2]);
+		bgInvert.visible = weekFile.songs[curSelected][3];
 	}
 
 	function changeSelection(change:Int = 0) {
@@ -783,6 +837,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 		bgColorStepperR.value = Math.round(weekFile.songs[curSelected][2][0]);
 		bgColorStepperG.value = Math.round(weekFile.songs[curSelected][2][1]);
 		bgColorStepperB.value = Math.round(weekFile.songs[curSelected][2][2]);
+		invertBGCheckbox.checked = weekFile.songs[curSelected][3];
 		updateBG();
 	}
 
@@ -807,7 +862,9 @@ class WeekEditorFreeplayState extends MusicBeatState
 			FlxG.sound.muteKeys = TitleState.muteKeys;
 			FlxG.sound.volumeDownKeys = TitleState.volumeDownKeys;
 			FlxG.sound.volumeUpKeys = TitleState.volumeUpKeys;
-			if(FlxG.keys.justPressed.ESCAPE) {
+			if(FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end) {
+				Paths.currentModSelectedDirectory = Paths.currentModDirectory;
+				Paths.currentModDirectory = ThemeLoader.themeMod;
 				MusicBeatState.switchState(new editors.MasterEditorMenu());
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}

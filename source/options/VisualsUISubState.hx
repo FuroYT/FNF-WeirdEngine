@@ -24,6 +24,9 @@ import flixel.util.FlxTimer;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
+#if android
+import android.Hardware;
+#end
 
 using StringTools;
 
@@ -55,8 +58,21 @@ class VisualsUISubState extends BaseOptionsMenu
 
 		var option:Option = new Option(Language.cameraZoom, Language.cameraZoomDesc, 'camZooms', 'bool', true);
 		addOption(option);
+		
+		var option:Option = new Option(Language.cameraMovement, Language.cameraMovementDesc, 'cameraMovement', 'bool', true);
+		addOption(option);
+		
+		var option:Option = new Option(Language.subtitles, Language.subtitlesDesc, 'subtitles', 'bool', true);
+		addOption(option);
 
 		var option:Option = new Option(Language.textZoom, Language.textZoomDesc, 'scoreZoom', 'bool', true);
+		addOption(option);
+
+		var option:Option = new Option(Language.raitingInStage,
+			Language.raitingInStageDesc,
+			'raitingInStage',
+			'bool',
+			false);
 		addOption(option);
 
 		var option:Option = new Option(Language.HPbarAlpha, Language.HPbarAlphaDesc, 'healthBarAlpha', 'percent', 1);
@@ -68,7 +84,7 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 
 		#if !mobile
-		var option:Option = new Option(Language.showFPS, Language.showFPSDesc, 'showFPS', 'bool', true);
+		var option:Option = new Option(Language.showFPS, Language.showFPSDesc, 'showFPS', 'bool', #if android false #else true #end);
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
 		#end
@@ -76,6 +92,33 @@ class VisualsUISubState extends BaseOptionsMenu
 		var option:Option = new Option(Language.pauseMusic, Language.pauseMusicDesc, 'pauseMusic', 'string', 'Breakfast', ['None', 'Breakfast', 'Tea Time']);
 		addOption(option);
 		option.onChange = onChangePauseMusic;
+
+		#if android
+		var option:Option = new Option(Language.vibration,
+			Language.vibrationDesc,
+			'vibration',
+			'bool',
+			false);
+		addOption(option);
+		option.onChange = onChangeGameOverVibration;
+		#end
+		
+
+		#if CHECK_FOR_UPDATES
+		var option:Option = new Option(Language.updates,
+			Language.updatesDesc,
+			'checkForUpdates',
+			'bool',
+			true);
+		addOption(option);
+
+		var option:Option = new Option(Language.psychUpdates,
+			Language.psychUpdatesDesc,
+			'checkForPsychUpdates',
+			'bool',
+			true);
+		addOption(option);
+		#end
 
 		super();
 	}
@@ -99,11 +142,19 @@ class VisualsUISubState extends BaseOptionsMenu
 		super.destroy();
 	}
 
-	#if !mobile
 	function onChangeFPSCounter()
 	{
 		if (Main.fpsVar != null)
 			Main.fpsVar.visible = ClientPrefs.showFPS;
+	}
+
+	#if android
+	function onChangeGameOverVibration()
+	{
+		if(ClientPrefs.vibration)
+		{
+			Hardware.vibrate(500);
+		}
 	}
 	#end
 }

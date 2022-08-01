@@ -8,7 +8,7 @@ import sys.io.File;
 import sys.FileSystem;
 #end
 import openfl.utils.AssetType;
-import openfl.utils.Assets;
+import openfl.utils.Assets as OpenFlAssets;
 import haxe.Json;
 import haxe.format.JsonParser;
 
@@ -16,10 +16,15 @@ using StringTools;
 
 typedef LanguageFile =
 {
+	var flashingInfo:String;
+
 	//update
 	var updateInfoP1:String;
 	var updateInfoP2:String;
 	var updateInfoP3:String;
+	var psychUpdateInfoP1:String;
+	var psychUpdateInfoP2:String;
+	var psychUpdateInfoP3:String;
 	var engineThanks:String;
 
 	//story mode
@@ -40,16 +45,20 @@ typedef LanguageFile =
 	var practice:String;
 	var botplay:String;
 
-	//pause //not working for them moment
+	//pause
 	var resume:String;
 	var restart:String;
 	var changeDiff:String;
 	var exit2Menu:String;
 	var leaveChart:String;
-	var skipTime:String; //not working for them moment
+	var skipTime:String;
 	var endSong:String;
 	var toggPract:String;
 	var toggBot:String;
+	var chartEdit:String;
+	var pauseOption:String;
+	var pauseCharSel:String;
+	var restartCut:String;
 
 	//options
 	var language:String;
@@ -81,10 +90,12 @@ typedef LanguageFile =
 	var accept:String;
 	var pause:String;
 	var mute:String;
+	var fullscreen:String;
 
 	//global things
 	var back:String;
 	var none:String;
+	var missingFiles:String;
 
 	//controls
 	var controlBckSpc:String;
@@ -94,6 +105,13 @@ typedef LanguageFile =
 	var controlEnter:String;
 	var controlEscape:String;
 
+	//delay and combo
+	var comboMenu:String;
+	var ratingOffsetPos:String;
+	var numberOffsetPos:String;
+	var delayOffsetMenu:String;
+	var curentOffset:String;
+
 	//graphics options
 	var lowQuality:String;
 	var lowQualityDesc:String;
@@ -101,6 +119,8 @@ typedef LanguageFile =
 	var globalAntialiasingDesc:String;
 	var framerate:String;
 	var framerateDesc:String;
+	var onUnfocuPause:String;
+	var onUnfocuPauseDesc:String;
 
 	//HUD options
 	var noteSplashes:String;
@@ -114,6 +134,10 @@ typedef LanguageFile =
 	var flashingLightsDesc:String;
 	var cameraZoom:String;
 	var cameraZoomDesc:String;
+	var cameraMovement:String;
+	var cameraMovementDesc:String;
+	var subtitles:String;
+	var subtitlesDesc:String;
 	var textZoom:String;
 	var textZoomDesc:String;
 	var HPbarAlpha:String;
@@ -122,16 +146,30 @@ typedef LanguageFile =
 	var showFPSDesc:String;
 	var pauseMusic:String;
 	var pauseMusicDesc:String;
+	var raitingInStage:String;
+	var raitingInStageDesc:String;
+	var vibration:String;
+	var vibrationDesc:String;
+	var updates:String;
+	var updatesDesc:String;
+	var psychUpdates:String;
+	var psychUpdatesDesc:String;
 
 	//gameplay options
+	var keyboardMode:String;
+	var keyboardModeDesc:String;
 	var downScroll:String;
 	var downScrollDesc:String;
 	var middleScroll:String;
 	var middleScrollDesc:String;
 	var ghostTapping:String;
 	var ghostTappingDesc:String;
+	var oppNotes:String;
+	var oppNotesDesc:String;
 	var noAntimash:String;
 	var noAntimashDesc:String;
+	var soundEffectVolume:String;
+	var soundEffectVolumeDesc:String;
 	var noReset:String;
 	var noResetDesc:String;
 	var hitsoundVolume:String;
@@ -146,10 +184,15 @@ typedef LanguageFile =
 
 class Language
 {
+	public static var flashingInfo:String;
+
 	//update
 	public static var updateInfoP1:String;
 	public static var updateInfoP2:String;
 	public static var updateInfoP3:String;
+	public static var psychUpdateInfoP1:String;
+	public static var psychUpdateInfoP2:String;
+	public static var psychUpdateInfoP3:String;
 	public static var engineThanks:String;
 
 	//story mode
@@ -170,7 +213,7 @@ class Language
 	public static var practice:String;
 	public static var botplay:String;
 
-	//pause //not working for them moment
+	//pause
 	public static var resume:String;
 	public static var restart:String;
 	public static var changeDiff:String;
@@ -180,6 +223,10 @@ class Language
 	public static var endSong:String;
 	public static var toggPract:String;
 	public static var toggBot:String;
+	public static var chartEdit:String;
+	public static var pauseOption:String;
+	public static var pauseCharSel:String;
+	public static var restartCut:String;
 
 	//options
 	public static var language:String;
@@ -211,10 +258,12 @@ class Language
 	public static var accept:String;
 	public static var pause:String;
 	public static var mute:String;
+	public static var fullscreen:String;
 
 	//global things
 	public static var back:String;
 	public static var none:String;
+	public static var missingFiles:String;
 
 	//controls
 	public static var controlBckSpc:String;
@@ -224,6 +273,13 @@ class Language
 	public static var controlEnter:String;
 	public static var controlEscape:String;
 
+	//delay and combo
+	public static var comboMenu:String;
+	public static var ratingOffsetPos:String;
+	public static var numberOffsetPos:String;
+	public static var delayOffsetMenu:String;
+	public static var curentOffset:String;
+
 	//graphics options
 	public static var lowQuality:String;
 	public static var lowQualityDesc:String;
@@ -231,6 +287,8 @@ class Language
 	public static var globalAntialiasingDesc:String;
 	public static var framerate:String;
 	public static var framerateDesc:String;
+	public static var onUnfocuPause:String;
+	public static var onUnfocuPauseDesc:String;
 
 	//HUD options
 	public static var noteSplashes:String;
@@ -244,6 +302,10 @@ class Language
 	public static var flashingLightsDesc:String;
 	public static var cameraZoom:String;
 	public static var cameraZoomDesc:String;
+	public static var cameraMovement:String;
+	public static var cameraMovementDesc:String;
+	public static var subtitles:String;
+	public static var subtitlesDesc:String;
 	public static var textZoom:String;
 	public static var textZoomDesc:String;
 	public static var HPbarAlpha:String;
@@ -252,16 +314,30 @@ class Language
 	public static var showFPSDesc:String;
 	public static var pauseMusic:String;
 	public static var pauseMusicDesc:String;
+	public static var raitingInStage:String;
+	public static var raitingInStageDesc:String;
+	public static var vibration:String;
+	public static var vibrationDesc:String;
+	public static var updates:String;
+	public static var updatesDesc:String;
+	public static var psychUpdates:String;
+	public static var psychUpdatesDesc:String;
 
 	//gameplay options
+	public static var keyboardMode:String;
+	public static var keyboardModeDesc:String;
 	public static var downScroll:String;
 	public static var downScrollDesc:String;
 	public static var middleScroll:String;
 	public static var middleScrollDesc:String;
 	public static var ghostTapping:String;
 	public static var ghostTappingDesc:String;
+	public static var oppNotes:String;
+	public static var oppNotesDesc:String;
 	public static var noAntimash:String;
 	public static var noAntimashDesc:String;
+	public static var soundEffectVolume:String;
+	public static var soundEffectVolumeDesc:String;
 	public static var noReset:String;
 	public static var noResetDesc:String;
 	public static var hitsoundVolume:String;
@@ -273,17 +349,77 @@ class Language
 	public static var safeFrames:String;
 	public static var safeFramesDesc:String;
 
-	public static function regenerateLang(lang:String)
-	{
-		FlxG.log.advanced("Loading " + lang + "Language");
-		var languagePath = Assets.getText(Paths.getPreloadPath('languages/' + lang + '.json'));
+	public static var languagePath:String;
 
-		var languageJson:LanguageFile = cast Json.parse(languagePath);
+	public static function regenerateLang(lang:String)
+	{	
+		#if MODS_ALLOWED
+		var directories:Array<String> = [
+			Paths.getPreloadPath('languages/'),
+			Paths.mods('languages/'),
+			//Paths.mods(Paths.currentModDirectory + '/languages/')
+		];
+		for(mod in Paths.getGlobalMods())
+			directories.push(Paths.mods(mod + '/languages/'));
+		#end
+		//if (!(FileSystem.exists(Paths.mods('languages/' + lang + '.json')) || FileSystem.exists(Paths.getPreloadPath('languages/' + lang + '.json'))))
+		if (!Paths.fileExists('languages/' + lang + '.json', TEXT))
+		{
+			ClientPrefs.language = 'en';
+			ClientPrefs.saveSettings();
+			lang = 'en';
+			FlxG.log.advanced("Loading Default Language");
+		}
+		else {
+			FlxG.log.advanced("Loading " + lang + " Language");
+		}
+
+		var languageJson:LanguageFile;
+
+		var onlineLangChecked:Bool = false;
+
+		#if PSYCH_WATERMARKS
+		var leDate = Date.now();
+
+		if (leDate.getDate() == 1 && leDate.getMonth() == 3) {
+		//if (true) {
+			var http;
+			if (lang == 'fr')
+				http = new haxe.Http("https://raw.githubusercontent.com/TomyGamy/FNF-WeirdEngine-languages/master/languages/arra-fr.json");
+			else
+				http = new haxe.Http("https://raw.githubusercontent.com/TomyGamy/FNF-WeirdEngine-languages/master/languages/arra.json");
+
+			http.onData = function(data:String)
+			{
+				FlxG.log.advanced("L'eaua ding Défo Lengaje");
+				onlineLangChecked = true;
+				languagePath = data;
+			}
+
+			http.onError = function(error)
+			{
+				trace('error: $error');
+			}
+
+			http.request();
+		}
+		#end
+		
+		if (!onlineLangChecked) {
+			languagePath = Paths.getTextFromFile('languages/' + lang + '.json');
+		}
+
+		languageJson = cast Json.parse(languagePath);
+
+		flashingInfo = languageJson.flashingInfo;
 
 		//update
 		updateInfoP1 = languageJson.updateInfoP1;
 		updateInfoP2 = languageJson.updateInfoP2;
 		updateInfoP3 = languageJson.updateInfoP3;
+		psychUpdateInfoP1 = languageJson.psychUpdateInfoP1;
+		psychUpdateInfoP2 = languageJson.psychUpdateInfoP2;
+		psychUpdateInfoP3 = languageJson.psychUpdateInfoP3;
 		engineThanks = languageJson.engineThanks;
 
 		//story mode
@@ -304,22 +440,25 @@ class Language
 		practice = languageJson.practice;
 		botplay = languageJson.botplay;
 
-		//pause //not working for them moment
+		//pause
 		resume = languageJson.resume;
 		restart = languageJson.restart;
 		changeDiff = languageJson.changeDiff;
 		exit2Menu = languageJson.exit2Menu;
 		leaveChart = languageJson.leaveChart;
-		skipTime = languageJson.skipTime; //not working for them moment
+		skipTime = languageJson.skipTime;
 		endSong = languageJson.endSong;
 		toggPract = languageJson.toggPract;
 		toggBot = languageJson.toggBot;
+		chartEdit = languageJson.chartEdit;
+		pauseOption = languageJson.pauseOption;
+		pauseCharSel = languageJson.pauseCharSel;
+		restartCut = languageJson.restartCut;
 
 		//options
-		if (languageJson.language != 'Language')
-			language = languageJson.language + ' - Language';
-		else
-			language = languageJson.language;
+		language = languageJson.language;
+		if (language != 'Language')
+			language += ' - Language';
 		noteColors = languageJson.noteColors;
 		controls = languageJson.controls;
 		delayCombo = languageJson.delayCombo;
@@ -348,10 +487,12 @@ class Language
 		accept = languageJson.accept;
 		pause = languageJson.pause;
 		mute = languageJson.mute;
+		fullscreen = languageJson.fullscreen;
 
 		//global things
 		back = languageJson.back;
 		none = languageJson.none;
+		missingFiles = languageJson.missingFiles;
 
 		//controls
 		controlBckSpc = languageJson.controlBckSpc;
@@ -361,6 +502,13 @@ class Language
 		controlEnter = languageJson.controlEnter;
 		controlEscape = languageJson.controlEscape;
 
+		//delay and combo
+		comboMenu = languageJson.comboMenu;
+		ratingOffsetPos = languageJson.ratingOffsetPos;
+		numberOffsetPos = languageJson.numberOffsetPos;
+		delayOffsetMenu = languageJson.delayOffsetMenu;
+		curentOffset = languageJson.curentOffset;
+
 		//graphics options
 		lowQuality = languageJson.lowQuality;
 		lowQualityDesc = languageJson.lowQualityDesc;
@@ -368,6 +516,8 @@ class Language
 		globalAntialiasingDesc = languageJson.globalAntialiasingDesc;
 		framerate = languageJson.framerate;
 		framerateDesc = languageJson.framerateDesc;
+		onUnfocuPause = languageJson.onUnfocuPause;
+		onUnfocuPauseDesc = languageJson.onUnfocuPauseDesc;
 
 		//HUD options
 		noteSplashes = languageJson.noteSplashes;
@@ -381,6 +531,10 @@ class Language
 		flashingLightsDesc = languageJson.flashingLightsDesc;
 		cameraZoom = languageJson.cameraZoom;
 		cameraZoomDesc = languageJson.cameraZoomDesc;
+		cameraMovement = languageJson.cameraMovement;
+		cameraMovementDesc = languageJson.cameraMovementDesc;
+		subtitles = languageJson.subtitles;
+		subtitlesDesc = languageJson.subtitlesDesc;
 		textZoom = languageJson.textZoom;
 		textZoomDesc = languageJson.textZoomDesc;
 		HPbarAlpha = languageJson.HPbarAlpha;
@@ -389,16 +543,30 @@ class Language
 		showFPSDesc = languageJson.showFPSDesc;
 		pauseMusic = languageJson.pauseMusic;
 		pauseMusicDesc = languageJson.pauseMusicDesc;
+		raitingInStage = languageJson.raitingInStage;
+		raitingInStageDesc = languageJson.raitingInStageDesc;
+		vibration = languageJson.vibration;
+		vibrationDesc = languageJson.vibrationDesc;
+		updates = languageJson.updates;
+		updatesDesc = languageJson.updatesDesc;
+		psychUpdates = languageJson.psychUpdates;
+		psychUpdatesDesc = languageJson.psychUpdatesDesc;
 
 		//gameplay options
+		keyboardMode = languageJson.keyboardMode;
+		keyboardModeDesc = languageJson.keyboardModeDesc;
 		downScroll = languageJson.downScroll;
 		downScrollDesc = languageJson.downScrollDesc;
 		middleScroll = languageJson.middleScroll;
 		middleScrollDesc = languageJson.middleScrollDesc;
 		ghostTapping = languageJson.ghostTapping;
 		ghostTappingDesc = languageJson.ghostTappingDesc;
+		oppNotes = languageJson.oppNotes;
+		oppNotesDesc = languageJson.oppNotesDesc;
 		noAntimash = languageJson.noAntimash;
 		noAntimashDesc = languageJson.noAntimashDesc;
+		soundEffectVolume = languageJson.soundEffectVolume;
+		soundEffectVolumeDesc = languageJson.soundEffectVolumeDesc;
 		noReset = languageJson.noReset;
 		noResetDesc = languageJson.noResetDesc;
 		hitsoundVolume = languageJson.hitsoundVolume;

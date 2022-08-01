@@ -1,0 +1,26 @@
+bf--Boyfriend
+dad--Daddy Dearest
+gf--Girlfriend
+spooky--Skid & Pump
+pico--Pico
+mom--Mommy Mearest
+mom-car--Mommy Mearest
+bf-car--Boyfriend
+gf-car--Girlfriend
+parents-christmas--D.Dearest & M.Mearest
+monster-christmas--Monster
+bf-christmas--Boyfriend
+gf-christmas--Girlfriend
+monster--Monster
+bf-pixel--Boyfriend
+gf-pixel--Girlfriend
+senpai--Senpai
+senpai-angry--Senpai
+spirit--Spirit
+bf-pixel-opponent--Boyfriend Pixel Test
+gf-tankmen--Girlfriend
+tankman--Tankman
+pico-speaker--Pico
+bf-holding-gf--Boyfriend & Girlfriend
+pico-player--Pico
+tankman-player--Tankman

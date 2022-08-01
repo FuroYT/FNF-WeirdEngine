@@ -7,6 +7,7 @@ import flash.text.TextField;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxGridOverlay;
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
@@ -128,6 +129,10 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 		changeSelection();
 		reloadCheckboxes();
+
+		#if android
+		addVirtualPad(FULL, A_B_C);
+		#end
 	}
 
 	public function addOption(option:Option)
@@ -154,7 +159,12 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 		if (controls.BACK)
 		{
+				#if android
+			FlxTransitionableState.skipNextTransOut = true;
+			FlxG.resetState();
+				#else
 			close();
+				#end
 			FlxG.sound.play(Paths.themeSound('cancelMenu'));
 		}
 
@@ -214,6 +224,30 @@ class BaseOptionsMenu extends MusicBeatSubstate
 											curOption.setValue(holdValue);
 									}
 
+								case 'fps':
+									curOption.displayFormat = '%v FPS';
+									descText.text = curOption.description;
+									if (curOption.getValue() == 'V-sync' && controls.UI_RIGHT){
+										curOption.setValue(Math.round(60));
+										holdValue = 60;
+									}
+									else {
+										holdValue = Math.round(curOption.getValue()) + add;
+										if (holdValue < curOption.minValue)
+										{
+											curOption.setValue('V-sync');
+											curOption.displayFormat = '%v';
+											descText.text = curOption.description + ' [' + Std.string(ClientPrefs.vSyncFPS) + ' Hz (Refresh Rate)]';
+										}
+										else
+										{	
+											if (holdValue > curOption.maxValue)
+												holdValue = curOption.maxValue;
+											holdValue = Math.round(holdValue);
+											curOption.setValue(holdValue);
+										}
+									}
+
 								case 'string':
 									var num:Int = curOption.curOption; // lol
 									if (controls.UI_LEFT_P)
@@ -249,8 +283,9 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 							switch (curOption.type)
 							{
-								case 'int':
-									curOption.setValue(Math.round(holdValue));
+								case 'int' | 'fps':
+									if (curOption.getValue() != 'V-sync')
+										curOption.setValue(Math.round(holdValue));
 
 								case 'float' | 'percent':
 									curOption.setValue(FlxMath.roundDecimal(holdValue, curOption.decimals));
@@ -271,7 +306,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 				}
 			}
 
-			if (controls.RESET)
+			if (controls.RESET #if android || _virtualpad.buttonC.justPressed #end)
 			{
 				for (i in 0...optionsArray.length)
 				{
@@ -332,6 +367,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			curSelected = 0;
 
 		descText.text = optionsArray[curSelected].description;
+		if (optionsArray[curSelected].type =='fps' && optionsArray[curSelected].getValue() == 'V-sync')
+			descText.text += ' [' + Std.string(ClientPrefs.vSyncFPS) + ' Hz (Refresh Rate)]';
 		descText.screenCenter(Y);
 		descText.y += 270;
 
@@ -380,7 +417,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			boyfriend.destroy();
 		}
 
-		boyfriend = new Character(840, 170, 'bf', true);
+		boyfriend = new Character(840, 170, 'bf', true, true);
 		boyfriend.setGraphicSize(Std.int(boyfriend.width * 0.75));
 		boyfriend.updateHitbox();
 		boyfriend.dance();

@@ -13,6 +13,7 @@ import flixel.group.FlxGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.net.curl.CURLCode;
@@ -49,6 +50,9 @@ class StoryMenuState extends MusicBeatState
 
 	var loadedWeeks:Array<WeekData> = [];
 
+	private var missingFileText:Alphabet;
+	var missingFileTween:FlxTween;
+
 	override function create()
 	{
 		Paths.clearStoredMemory();
@@ -60,15 +64,15 @@ class StoryMenuState extends MusicBeatState
 		persistentUpdate = persistentDraw = true;
 
 		scoreText = new FlxText(10, 10, 0, "SCORE: 49324858", 36);
-		scoreText.setFormat("VCR OSD Mono", 32);
+		scoreText.setFormat(Paths.font(ThemeLoader.fontName), 32);
 
 		txtWeekTitle = new FlxText(FlxG.width * 0.7, 10, 0, "", 32);
-		txtWeekTitle.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, RIGHT);
+		txtWeekTitle.setFormat(Paths.font(ThemeLoader.fontName), 32, FlxColor.WHITE, RIGHT);
 		txtWeekTitle.alpha = 0.7;
 
 		var rankText:FlxText = new FlxText(0, 10);
 		rankText.text = 'RANK: GREAT';
-		rankText.setFormat(Paths.font("vcr.ttf"), 32);
+		rankText.setFormat(Paths.font(ThemeLoader.fontName), 32);
 		rankText.size = scoreText.size;
 		rankText.screenCenter(X);
 
@@ -182,8 +186,18 @@ class StoryMenuState extends MusicBeatState
 		add(scoreText);
 		add(txtWeekTitle);
 
+		missingFileText = new Alphabet(0, 0, Language.missingFiles, true, false, 1, 0.7);
+		missingFileText.alpha = 0;
+		missingFileText.screenCenter(X);
+		missingFileText.y = Std.int(FlxG.height - missingFileText.height - 30);
+		add(missingFileText);
+
 		changeWeek();
 		changeDifficulty();
+
+		#if android
+		addVirtualPad(FULL, A_B_X_Y);
+		#end
 
 		super.create();
 	}
@@ -200,7 +214,7 @@ class StoryMenuState extends MusicBeatState
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, CoolUtil.boundTo(elapsed * 30, 0, 1)));
 		if(Math.abs(intendedScore - lerpScore) < 10) lerpScore = intendedScore;
 
-		scoreText.text = Language.weekScore + lerpScore;
+		scoreText.text = Language.weekScore + ' ' + lerpScore;
 
 		// FlxG.watch.addQuick('font', scoreText.font);
 
@@ -220,6 +234,13 @@ class StoryMenuState extends MusicBeatState
 				FlxG.sound.play(Paths.themeSound('scrollMenu'));
 			}
 
+			if(FlxG.mouse.wheel != 0)
+			{
+				FlxG.sound.play(Paths.themeSound('scrollMenu'), 0.4);
+				changeWeek(-FlxG.mouse.wheel);
+				changeDifficulty();
+			}
+
 			if (controls.UI_RIGHT)
 				rightArrow.animation.play('press')
 			else
@@ -237,13 +258,19 @@ class StoryMenuState extends MusicBeatState
 			else if (upP || downP)
 				changeDifficulty();
 
-			if(FlxG.keys.justPressed.CONTROL)
+			if(FlxG.keys.justPressed.CONTROL #if android || _virtualpad.buttonX.justPressed #end)
 			{
+				#if android
+				removeVirtualPad();
+				#end
 				persistentUpdate = false;
 				openSubState(new GameplayChangersSubstate());
 			}
-			else if(controls.RESET)
+			else if(controls.RESET #if android || _virtualpad.buttonY.justPressed #end)
 			{
+				#if android
+				removeVirtualPad();
+				#end
 				persistentUpdate = false;
 				openSubState(new ResetScoreSubState('', curDifficulty, '', curWeek));
 				//FlxG.sound.play(Paths.sound('scrollMenu'));
@@ -256,6 +283,10 @@ class StoryMenuState extends MusicBeatState
 
 		if (controls.BACK && !movedBack && !selectedWeek)
 		{
+			if (missingFileTween != null)
+			{
+				missingFileTween.cancel();
+			}
 			FlxG.sound.play(Paths.themeSound('cancelMenu'));
 			movedBack = true;
 			MusicBeatState.switchState(new MainMenuState());
@@ -278,17 +309,6 @@ class StoryMenuState extends MusicBeatState
 	{
 		if (!weekIsLocked(loadedWeeks[curWeek].fileName))
 		{
-			if (stopspamming == false)
-			{
-				FlxG.sound.play(Paths.themeSound('startMenu'));
-
-				grpWeekText.members[curWeek].startFlashing();
-
-				var bf:MenuCharacter = grpWeekCharacters.members[1];
-				if(bf.character != '' && bf.hasConfirmAnimation) grpWeekCharacters.members[1].animation.play('confirm');
-				stopspamming = true;
-			}
-
 			// We can't use Dynamic Array .copy() because that crashes HTML5, here's a workaround.
 			var songArray:Array<String> = [];
 			var leWeek:Array<Dynamic> = loadedWeeks[curWeek].songs;
@@ -297,23 +317,64 @@ class StoryMenuState extends MusicBeatState
 			}
 
 			// Nevermind that's stupid lmao
-			PlayState.storyPlaylist = songArray;
-			PlayState.isStoryMode = true;
-			selectedWeek = true;
 
 			var diffic = CoolUtil.getDifficultyFilePath(curDifficulty);
 			if(diffic == null) diffic = '';
 
-			PlayState.storyDifficulty = curDifficulty;
+			var checkedJson:Bool = true;
 
-			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
-			PlayState.campaignScore = 0;
-			PlayState.campaignMisses = 0;
-			new FlxTimer().start(1, function(tmr:FlxTimer)
-			{
-				LoadingState.loadAndSwitchState(new PlayState(), true);
-				FreeplayState.destroyFreeplayVocals();
-			});
+			for (i in 0...songArray.length) {
+				if (!Song.checkJson(songArray[i].toLowerCase() + diffic, songArray[i].toLowerCase()))
+					checkedJson = false;
+			}
+
+			if (!checkedJson) {
+				missingFileText.alpha = 1;
+				if (missingFileTween != null)
+				{
+					missingFileTween.cancel();
+				}
+				missingFileTween = FlxTween.tween(missingFileText, {alpha: 0}, 1, {ease: FlxEase.circIn, onComplete: function (twn:FlxTween) {
+						missingFileTween = null;
+					}
+				});
+				FlxG.sound.play(Paths.themeSound('cancelMenu'));
+			}
+			else {
+				if (stopspamming == false)
+				{
+					FlxG.sound.play(Paths.themeSound('startMenu'));
+	
+					grpWeekText.members[curWeek].startFlashing();
+	
+					var bf:MenuCharacter = grpWeekCharacters.members[1];
+					if(bf.character != '' && bf.hasConfirmAnimation) grpWeekCharacters.members[1].animation.play('confirm');
+					stopspamming = true;
+				}
+
+				if (missingFileTween != null)
+				{
+					missingFileTween.cancel();
+				}
+				
+				PlayState.storyPlaylist = songArray;
+				PlayState.isStoryMode = true;
+				selectedWeek = true;
+
+				PlayState.storyDifficulty = curDifficulty;
+
+				PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
+				PlayState.campaignScore = 0;
+				PlayState.campaignMisses = 0;
+				new FlxTimer().start(1, function(tmr:FlxTimer)
+				{
+					if (WeekData.getCurrentWeek().weekPlayableCharacter == null || WeekData.getCurrentWeek().weekPlayableCharacter == "")
+						LoadingState.loadAndSwitchState(new PlayState(), true);
+					else
+						LoadingState.loadAndSwitchState(new CharSelectState(), true);
+					FreeplayState.destroyFreeplayVocals();
+				});
+			}
 		} else {
 			FlxG.sound.play(Paths.themeSound('cancelMenu'));
 		}

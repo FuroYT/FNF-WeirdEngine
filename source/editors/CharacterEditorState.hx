@@ -118,7 +118,7 @@ class CharacterEditorState extends MusicBeatState
 		add(healthBarBG);
 		healthBarBG.cameras = [camHUD];
 
-		leHealthIcon = new HealthIcon(char.healthIcon, false, char.hasWinIcon);
+		leHealthIcon = new HealthIcon(char.healthIcon, false);
 		leHealthIcon.y = FlxG.height - 150;
 		add(leHealthIcon);
 		leHealthIcon.cameras = [camHUD];
@@ -199,6 +199,13 @@ class CharacterEditorState extends MusicBeatState
 
 		FlxG.mouse.visible = true;
 		reloadCharacterOptions();
+
+		#if android
+		addVirtualPad(FULL, FULL);
+		addPadCamera();
+		#end
+
+		Conductor.changeBPM(120);
 
 		super.create();
 	}
@@ -426,7 +433,7 @@ class CharacterEditorState extends MusicBeatState
 		tab_group.name = "Settings";
 
 		var check_player = new FlxUICheckBox(10, 60, null, null, "Playable Character", 100);
-		check_player.checked = daAnim.startsWith('bf');
+		check_player.checked = daAnim.startsWith('bf') || daAnim.endsWith('player');
 		check_player.callback = function()
 		{
 			char.isPlayer = !char.isPlayer;
@@ -479,7 +486,6 @@ class CharacterEditorState extends MusicBeatState
 				character.noAntialiasing = parsedJson.no_antialiasing;
 				character.originalFlipX = parsedJson.flip_x;
 				character.healthIcon = parsedJson.healthicon;
-				character.hasWinIcon = parsedJson.hasWinIcon;
 				character.healthColorArray = parsedJson.healthbar_colors;
 				character.setPosition(character.positionArray[0] + OFFSET_X + 100, character.positionArray[1]);
 			}
@@ -505,7 +511,6 @@ class CharacterEditorState extends MusicBeatState
 
 	var imageInputText:FlxUIInputText;
 	var healthIconInputText:FlxUIInputText;
-	var hasWinIconCheckBox:FlxUICheckBox;
 
 	var singDurationStepper:FlxUINumericStepper;
 	var scaleStepper:FlxUINumericStepper;
@@ -549,15 +554,6 @@ class CharacterEditorState extends MusicBeatState
 		});
 
 		healthIconInputText = new FlxUIInputText(15, imageInputText.y + 35, 75, leHealthIcon.getCharacter(), 8);
-
-		hasWinIconCheckBox = new FlxUICheckBox(healthIconInputText.x + healthIconInputText.width + 10, healthIconInputText.y, null, null, "Has Win Icon", 80);
-		hasWinIconCheckBox.checked = char.hasWinIcon;
-
-		hasWinIconCheckBox.callback = function()
-		{
-			updateIcon();
-			char.hasWinIcon = !char.hasWinIcon;
-		};
 
 		singDurationStepper = new FlxUINumericStepper(15, healthIconInputText.y + 45, 0.1, 4, 0, 999, 1);
 
@@ -616,7 +612,6 @@ class CharacterEditorState extends MusicBeatState
 		tab_group.add(reloadImage);
 		tab_group.add(decideIconColor);
 		tab_group.add(healthIconInputText);
-		tab_group.add(hasWinIconCheckBox);
 		tab_group.add(singDurationStepper);
 		tab_group.add(scaleStepper);
 		tab_group.add(flipXCheckBox);
@@ -847,6 +842,8 @@ class CharacterEditorState extends MusicBeatState
 				char.jsonScale = sender.value;
 				char.setGraphicSize(Std.int(char.width * char.jsonScale));
 				char.updateHitbox();
+				ghostChar.setGraphicSize(Std.int(ghostChar.width * char.jsonScale));
+				ghostChar.updateHitbox();
 				reloadGhost();
 				updatePointerPos();
 
@@ -900,7 +897,7 @@ class CharacterEditorState extends MusicBeatState
 	}
 
 	function updateIcon(){
-		leHealthIcon.changeIcon(healthIconInputText.text, hasWinIconCheckBox.checked);
+		leHealthIcon.changeIcon(healthIconInputText.text);
 	}
 
 	function reloadCharacterImage()
@@ -1016,11 +1013,11 @@ class CharacterEditorState extends MusicBeatState
 			--i;
 		}
 		charLayer.clear();
-		ghostChar = new Character(0, 0, daAnim, !isDad);
+		ghostChar = new Character(0, 0, daAnim, !isDad, true);
 		ghostChar.debugMode = true;
 		ghostChar.alpha = 0.6;
 
-		char = new Character(0, 0, daAnim, !isDad);
+		char = new Character(0, 0, daAnim, !isDad, true);
 		if (char.animationsArray[0] != null)
 		{
 			char.playAnim(char.animationsArray[0].anim, true);
@@ -1087,13 +1084,12 @@ class CharacterEditorState extends MusicBeatState
 		{
 			imageInputText.text = char.imageFile;
 			healthIconInputText.text = char.healthIcon;
-			hasWinIconCheckBox.checked = char.hasWinIcon;
 			singDurationStepper.value = char.singDuration;
 			scaleStepper.value = char.jsonScale;
 			flipXCheckBox.checked = char.originalFlipX;
 			noAntialiasingCheckBox.checked = char.noAntialiasing;
 			resetHealthBarColor();
-			leHealthIcon.changeIcon(healthIconInputText.text, char.hasWinIcon);
+			leHealthIcon.changeIcon(healthIconInputText.text);
 			positionXStepper.value = char.positionArray[0];
 			positionYStepper.value = char.positionArray[1];
 			positionCameraXStepper.value = char.cameraPosition[0];
@@ -1154,9 +1150,6 @@ class CharacterEditorState extends MusicBeatState
 		}
 		ghostChar.color = 0xFF666688;
 		ghostChar.antialiasing = char.antialiasing;
-
-		ghostChar.setGraphicSize(Std.int(ghostChar.width * char.jsonScale));
-		ghostChar.updateHitbox();
 	}
 
 	function reloadCharacterDropDown()
@@ -1170,6 +1163,8 @@ class CharacterEditorState extends MusicBeatState
 			Paths.mods(Paths.currentModDirectory + '/characters/'),
 			Paths.getPreloadPath('characters/')
 		];
+		for(mod in Paths.getGlobalMods())
+			directories.push(Paths.mods(mod + '/characters/'));
 		for (i in 0...directories.length)
 		{
 			var directory:String = directories[i];
@@ -1270,7 +1265,7 @@ class CharacterEditorState extends MusicBeatState
 
 		if (!charDropDown.dropPanel.visible)
 		{
-			if (FlxG.keys.justPressed.ESCAPE)
+			if (FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end)
 			{
 				if (goToPlayState)
 				{
@@ -1278,6 +1273,7 @@ class CharacterEditorState extends MusicBeatState
 				}
 				else
 				{
+					Paths.currentModDirectory = ThemeLoader.themeMod;
 					MusicBeatState.switchState(new editors.MasterEditorMenu());
 					FlxG.sound.playMusic(Paths.themeMusic('freakyMenu'));
 				}
@@ -1285,18 +1281,18 @@ class CharacterEditorState extends MusicBeatState
 				return;
 			}
 
-			if (FlxG.keys.justPressed.R)
+			if (FlxG.keys.justPressed.R #if android || _virtualpad.buttonZ.justPressed #end)
 			{
 				FlxG.camera.zoom = 1;
 			}
 
-			if (FlxG.keys.pressed.E && FlxG.camera.zoom < 3)
+			if (FlxG.keys.pressed.E #if android || _virtualpad.buttonX.pressed #end && FlxG.camera.zoom < 3)
 			{
 				FlxG.camera.zoom += elapsed * FlxG.camera.zoom;
 				if (FlxG.camera.zoom > 3)
 					FlxG.camera.zoom = 3;
 			}
-			if (FlxG.keys.pressed.Q && FlxG.camera.zoom > 0.1)
+			if (FlxG.keys.pressed.Q #if android || _virtualpad.buttonY.pressed #end && FlxG.camera.zoom > 0.1)
 			{
 				FlxG.camera.zoom -= elapsed * FlxG.camera.zoom;
 				if (FlxG.camera.zoom < 0.1)
@@ -1322,12 +1318,12 @@ class CharacterEditorState extends MusicBeatState
 
 			if (char.animationsArray.length > 0)
 			{
-				if (FlxG.keys.justPressed.W)
+				if (FlxG.keys.justPressed.W #if android || _virtualpad.buttonV.justPressed #end)
 				{
 					curAnim -= 1;
 				}
 
-				if (FlxG.keys.justPressed.S)
+				if (FlxG.keys.justPressed.S #if android || _virtualpad.buttonD.justPressed #end)
 				{
 					curAnim += 1;
 				}
@@ -1338,12 +1334,12 @@ class CharacterEditorState extends MusicBeatState
 				if (curAnim >= char.animationsArray.length)
 					curAnim = 0;
 
-				if (FlxG.keys.justPressed.S || FlxG.keys.justPressed.W || FlxG.keys.justPressed.SPACE)
+				if (FlxG.keys.justPressed.S #if android || _virtualpad.buttonD.justPressed #end || FlxG.keys.justPressed.W #if android || _virtualpad.buttonV.justPressed #end || FlxG.keys.justPressed.SPACE)
 				{
 					char.playAnim(char.animationsArray[curAnim].anim, true);
 					genBoyOffsets();
 				}
-				if (FlxG.keys.justPressed.T)
+				if (FlxG.keys.justPressed.T #if android || _virtualpad.buttonA.justPressed #end)
 				{
 					char.animationsArray[curAnim].offsets = [0, 0];
 
@@ -1354,17 +1350,17 @@ class CharacterEditorState extends MusicBeatState
 				}
 
 				var controlArray:Array<Bool> = [
-					FlxG.keys.justPressed.LEFT,
-					FlxG.keys.justPressed.RIGHT,
-					FlxG.keys.justPressed.UP,
-					FlxG.keys.justPressed.DOWN
+					FlxG.keys.justPressed.LEFT #if android || _virtualpad.buttonLeft.justPressed #end,
+					FlxG.keys.justPressed.RIGHT #if android || _virtualpad.buttonRight.justPressed #end,
+					FlxG.keys.justPressed.UP #if android || _virtualpad.buttonUp.justPressed #end,
+					FlxG.keys.justPressed.DOWN #if android || _virtualpad.buttonDown.justPressed #end
 				];
 
 				for (i in 0...controlArray.length)
 				{
 					if (controlArray[i])
 					{
-						var holdShift = FlxG.keys.pressed.SHIFT;
+						var holdShift = FlxG.keys.pressed.SHIFT #if android || _virtualpad.buttonB.pressed #end;
 						var multiplier = 1;
 						if (holdShift)
 							multiplier = 10;
@@ -1457,7 +1453,6 @@ class CharacterEditorState extends MusicBeatState
 			"scale": char.jsonScale,
 			"sing_duration": char.singDuration,
 			"healthicon": char.healthIcon,
-			"hasWinIcon": char.hasWinIcon,
 
 			"position": char.positionArray,
 			"camera_position": char.cameraPosition,
@@ -1471,11 +1466,15 @@ class CharacterEditorState extends MusicBeatState
 
 		if (data.length > 0)
 		{
+			#if android
+			SUtil.saveContent(daAnim, ".json", data);
+			#else
 			_file = new FileReference();
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 			_file.save(data, daAnim + ".json");
+			#end
 		}
 	}
 

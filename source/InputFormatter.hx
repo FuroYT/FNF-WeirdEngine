@@ -112,4 +112,10 @@ class InputFormatter
 				return '' + label.charAt(0).toUpperCase() + label.substr(1).toLowerCase();
 		}
 	}
+
+	public static function getKeyData(key:FlxKey):String
+		{
+			var label:String = '' + key;
+			return '' + label;
+		}
 }

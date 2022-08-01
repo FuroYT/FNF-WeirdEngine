@@ -23,7 +23,11 @@ import haxe.Json;
 import haxe.format.JsonParser;
 import openfl.display.BitmapData;
 import flash.geom.Rectangle;
+#if android
+import android.flixel.FlxButton;
+#else
 import flixel.ui.FlxButton;
+#end
 import flixel.FlxBasic;
 import sys.io.File;
 /*import haxe.zip.Reader;
@@ -89,7 +93,7 @@ class ModsMenuState extends MusicBeatState
 		noModsTxt.screenCenter();
 		visibleWhenNoMods.push(noModsTxt);
 
-		var path:String = 'modsList.txt';
+		var path:String = SUtil.getPath() + 'modsList.txt';
 		if(FileSystem.exists(path))
 		{
 			var leMods:Array<String> = CoolUtil.coolTextFile(path);
@@ -108,7 +112,7 @@ class ModsMenuState extends MusicBeatState
 
 		// FIND MOD FOLDERS
 		var boolshit = true;
-		if (FileSystem.exists("modsList.txt")){
+		if (FileSystem.exists(SUtil.getPath() + "modsList.txt")){
 			for (folder in Paths.getModDirectories())
 			{
 				if(!Paths.ignoreModFolders.contains(folder))
@@ -383,6 +387,10 @@ class ModsMenuState extends MusicBeatState
 
 		FlxG.mouse.visible = true;
 
+		#if android
+		addVirtualPad(UP_DOWN, B);
+		#end
+
 		super.create();
 	}
 
@@ -463,8 +471,9 @@ class ModsMenuState extends MusicBeatState
 			fileStr += values[0] + '|' + (values[1] ? '1' : '0');
 		}
 
-		var path:String = 'modsList.txt';
+		var path:String = SUtil.getPath() + 'modsList.txt';
 		File.saveContent(path, fileStr);
+		Paths.pushGlobalMods();
 	}
 
 	var noModsSine:Float = 0;
@@ -488,9 +497,20 @@ class ModsMenuState extends MusicBeatState
 			if(needaReset)
 			{
 				//MusicBeatState.switchState(new TitleState());
+				ThemeLoader.getThemeProperties();
 				TitleState.initialized = false;
 				TitleState.closedState = false;
 				FlxG.sound.music.fadeOut(0.3);
+				if(FreeplayState.vocals != null)
+				{
+					FreeplayState.vocals.fadeOut(0.3);
+					FreeplayState.vocals = null;
+				}
+				if(FreeplayState.oppVocals != null)
+				{
+					FreeplayState.oppVocals.fadeOut(0.3);
+					FreeplayState.oppVocals = null;
+				}
 				FlxG.camera.fade(FlxColor.BLACK, 0.5, false, FlxG.resetGame, false);
 			}
 			else
@@ -523,27 +543,16 @@ class ModsMenuState extends MusicBeatState
 
 	function changeSelection(change:Int = 0)
 	{
-		if(mods.length < 1)
-		{
-			for (obj in visibleWhenHasMods)
-			{
-				obj.visible = false;
-			}
-			for (obj in visibleWhenNoMods)
-			{
-				obj.visible = true;
-			}
-			return;
-		}
-		
+		var noMods:Bool = (mods.length < 1);
 		for (obj in visibleWhenHasMods)
 		{
-			obj.visible = true;
+			obj.visible = !noMods;
 		}
 		for (obj in visibleWhenNoMods)
 		{
-			obj.visible = false;
+			obj.visible = noMods;
 		}
+		if(noMods) return;
 
 		curSelected += change;
 		if(curSelected < 0)

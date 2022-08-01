@@ -8,7 +8,6 @@ import lime.utils.Assets;
 import openfl.utils.Assets as OpenFlAssets;
 import haxe.Json;
 import haxe.format.JsonParser;
-import sys.io.File;
 
 using StringTools;
 
@@ -21,6 +20,7 @@ typedef WeekFile =
 	var weekBefore:String;
 	var storyName:String;
 	var weekName:String;
+	var weekPlayableCharacter:String;
 	var freeplayColor:Array<Int>;
 	var startUnlocked:Bool;
 	var hiddenUntilUnlocked:Bool;
@@ -41,6 +41,7 @@ class WeekData {
 	public var weekBefore:String;
 	public var storyName:String;
 	public var weekName:String;
+	public var weekPlayableCharacter:String;
 	public var freeplayColor:Array<Int>;
 	public var startUnlocked:Bool;
 	public var hiddenUntilUnlocked:Bool;
@@ -58,6 +59,7 @@ class WeekData {
 			weekBefore: 'tutorial',
 			storyName: 'Your New Week',
 			weekName: 'Custom Week',
+			weekPlayableCharacter: "",
 			freeplayColor: [146, 113, 253],
 			startUnlocked: true,
 			hiddenUntilUnlocked: false,
@@ -76,6 +78,7 @@ class WeekData {
 		weekBefore = weekFile.weekBefore;
 		storyName = weekFile.storyName;
 		weekName = weekFile.weekName;
+		weekPlayableCharacter = weekFile.weekPlayableCharacter;
 		freeplayColor = weekFile.freeplayColor;
 		startUnlocked = weekFile.startUnlocked;
 		hiddenUntilUnlocked = weekFile.hiddenUntilUnlocked;
@@ -92,7 +95,7 @@ class WeekData {
 		weeksLoaded.clear();
 		#if MODS_ALLOWED
 		var disabledMods:Array<String> = [];
-		var modsListPath:String = 'modsList.txt';
+		var modsListPath:String = SUtil.getPath() + 'modsList.txt';
 		var directories:Array<String> = [Paths.mods(), Paths.getPreloadPath()];
 		var originalLength:Int = directories.length;
 		if(FileSystem.exists(modsListPath))
@@ -249,7 +252,7 @@ class WeekData {
 		Paths.currentModDirectory = '';
 		
 		#if MODS_ALLOWED
-		if (FileSystem.exists("modsList.txt"))
+		if (FileSystem.exists(SUtil.getPath() + "modsList.txt"))
 		{
 			var list:Array<String> = CoolUtil.listFromString(File.getContent("modsList.txt"));
 			var foundTheTop = false;

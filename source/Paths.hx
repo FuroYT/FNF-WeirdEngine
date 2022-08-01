@@ -13,12 +13,14 @@ import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
 import lime.utils.Assets;
 import flixel.FlxSprite;
-#if MODS_ALLOWED
+#if sys
 import sys.io.File;
 import sys.FileSystem;
 #end
 import flixel.graphics.FlxGraphic;
 import openfl.display.BitmapData;
+import haxe.Json;
+
 import flash.media.Sound;
 
 using StringTools;
@@ -30,7 +32,7 @@ class Paths
 
 	#if MODS_ALLOWED
 	public static var ignoreModFolders:Array<String> = [
-		'characters', 'custom_events', 'custom_notetypes', 'data', 'songs', 'music', 'sounds', 'shaders', 'videos', 'images', 'stages', 'weeks', 'fonts',
+		'characters', 'custom_events', 'custom_notetypes', 'data', 'languages', 'songs', 'music', 'sounds', 'shaders', 'videos', 'images', 'stages', 'weeks', 'fonts',
 		'scripts', 'achievements'
 	];
 	#end
@@ -106,6 +108,7 @@ class Paths
 	}
 
 	static public var currentModDirectory:String = '';
+	static public var currentModSelectedDirectory:String = '';
 	static public var currentLevel:String;
 
 	static public function setCurrentLevel(name:String)
@@ -162,6 +165,11 @@ class Paths
 		return getPath('data/$key.txt', TEXT, library);
 	}
 
+	inline static public function imageTxt(key:String, ?library:String)
+	{
+		return getPath('images/$key.txt', TEXT, library);
+	}
+
 	inline static public function xml(key:String, ?library:String)
 	{
 		return getPath('data/$key.xml', TEXT, library);
@@ -170,6 +178,11 @@ class Paths
 	inline static public function json(key:String, ?library:String)
 	{
 		return getPath('data/$key.json', TEXT, library);
+	}
+
+	inline static public function imageJson(key:String, ?library:String)
+	{
+		return getPath('images/$key.json', TEXT, library);
 	}
 
 	inline static public function shaderFragment(key:String, ?library:String)
@@ -205,15 +218,49 @@ class Paths
 		return sound;
 	}
 
-	static public function themeSound(key:String, ?library:String):Sound
+	static public function langSound(key:String, ?library:String):Sound
 	{
-		var sound:Sound = returnSound('sounds', TitleState.themefolder + key, library);
-		if (!(FileSystem.exists(modsSounds('sounds', TitleState.themefolder + key)) || FileSystem.exists('assets/sounds/' + TitleState.themefolder + '$key.$SOUND_EXT') || FileSystem.exists('assets/shared/sounds/' + TitleState.themefolder + '$key.$SOUND_EXT'))) {
+		var sound:Sound = returnSound('sounds', key + '-' + ClientPrefs.language, library);
+		#if MODS_ALLOWED
+		if (!(FileSystem.exists(modsSounds('sounds', key + '-' + ClientPrefs.language)) || FileSystem.exists('assets/sounds/' + key + '-' + ClientPrefs.language + '.$SOUND_EXT') || FileSystem.exists('assets/shared/sounds/' + key + '-' + ClientPrefs.language + '.$SOUND_EXT'))) {
 			sound = returnSound('sounds', key, library);
-			FlxG.log.advanced("Default theme sound");
 		}
 		return sound;
+		#end
+		if (!OpenFlAssets.exists(getPath('sounds/' + key + '-' + ClientPrefs.language + '.$SOUND_EXT', SOUND, library)))
+			return returnSound('sounds', key, library);
+		return sound;
 	}
+
+	static public function themeSound(key:String, ?library:String):Sound
+	{
+		var sound:Sound = returnSound('sounds', ThemeLoader.themefolder + key, library);
+		#if MODS_ALLOWED
+		if (!(FileSystem.exists(modsSounds('sounds', ThemeLoader.themefolder + key)) || FileSystem.exists('assets/sounds/' + ThemeLoader.themefolder + '$key.$SOUND_EXT') || FileSystem.exists('assets/shared/sounds/' + ThemeLoader.themefolder + '$key.$SOUND_EXT'))) {
+			sound = returnSound('sounds', key, library);
+		}
+		return sound;
+		#end
+		if (!OpenFlAssets.exists(getPath('sounds/${ThemeLoader.themefolder}/$key.$SOUND_EXT', SOUND, library)))
+			return returnSound('sounds', key, library);
+		return sound;
+	}
+
+	/*
+	static public function stageSound(key:String, ?library:String):Sound
+	{
+		var sound:Sound = returnSound('sounds', PlayState.stageThemeFolder + key, library);
+		#if MODS_ALLOWED
+		if (!(FileSystem.exists(modsSounds('sounds', PlayState.stageThemeFolder + key)) || FileSystem.exists('assets/sounds/' + PlayState.stageThemeFolder + '$key.$SOUND_EXT') || FileSystem.exists('assets/shared/sounds/' + PlayState.stageThemeFolder + '$key.$SOUND_EXT'))) {
+			sound = returnSound('sounds', key, library);
+		}
+		return sound;
+		#end
+		if (!OpenFlAssets.exists(getPath('sounds/${PlayState.stageThemeFolder}/$key.$SOUND_EXT', SOUND, library)))
+			return returnSound('sounds', key, library);
+		return sound;
+
+	}*/
 
 	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
 	{
@@ -228,41 +275,64 @@ class Paths
 
 	inline static public function themeMusic(key:String, ?library:String):Sound
 	{
-		var file:Sound = returnSound('music', TitleState.themefolder + key, library);
-		if (!(FileSystem.exists(modsSounds('music', TitleState.themefolder + key)) || FileSystem.exists('assets/music/' + TitleState.themefolder + '$key.$SOUND_EXT') || FileSystem.exists('assets/shared/music/' + TitleState.themefolder + '$key.$SOUND_EXT')))
+		var sound:Sound = returnSound('music', ThemeLoader.themefolder + key, library);
+		#if MODS_ALLOWED
+		if (!(FileSystem.exists(modsSounds('music', ThemeLoader.themefolder + key)) || FileSystem.exists('assets/music/' + ThemeLoader.themefolder + '$key.$SOUND_EXT') || FileSystem.exists('assets/shared/music/' + ThemeLoader.themefolder + '$key.$SOUND_EXT'))) {
+			sound = returnSound('music', key, library);
+		}
+		return sound;
+		#else
+		return returnSound('music', key, library);
+		#end
+	}
+
+	/*
+	inline static public function stageMusic(key:String, ?library:String):Sound
+	{
+		var file:Sound = returnSound('music', PlayState.stageThemeFolder + key, library);
+		if (!(FileSystem.exists(modsSounds('music', PlayState.stageThemeFolder + key)) || FileSystem.exists('assets/music/' + PlayState.stageThemeFolder + '$key.$SOUND_EXT') || FileSystem.exists('assets/shared/music/' + PlayState.stageThemeFolder + '$key.$SOUND_EXT')))
 			file = returnSound('music', key, library);
 		FlxG.log.advanced("Default theme music");
 		return file;
+	}*/
+
+	inline static public function checkOppVoices(song:String):Any
+	{
+		var songKey:String = '${formatToSongPath(song)}/OppVoices';
+		if (fileExists('songs/$songKey.$SOUND_EXT', SOUND) || fileExists('$songKey.$SOUND_EXT', SOUND, true, 'songs'))
+		{
+			FlxG.log.advanced("OppVoices loaded");
+			return true;
+		}
+		FlxG.log.advanced("There is no OppVoices");
+		return false;
 	}
 
 	inline static public function oppVoices(song:String):Any
 	{
-		var file:Sound = returnSound('songs', song.toLowerCase().replace(' ', '-') + '/OppVoices');
-		FlxG.log.advanced("OppVoices loaded");
+		var songKey:String = '${formatToSongPath(song)}/OppVoices';
+		var file:Sound = returnSound('songs', songKey);
 		return file;
 	}
 
-	inline static public function voices(song:String, char:String):Any
+	inline static public function voices(song:String, ?char:String = ''):Any
 	{
-		var modsFileCheck:String = modsSounds('songs', song.toLowerCase().replace(' ', '-') + '/Voices-' + char);
-		var fileCheck:String = 'assets/songs/${song.toLowerCase().replace(' ', '-')}/Voices-${char}.$SOUND_EXT';
-		var file:Sound;
-		if (FileSystem.exists(fileCheck) || FileSystem.exists(modsFileCheck))
+		var songKey:String = '${formatToSongPath(song)}/Voices-${char}';
+		if (fileExists('songs/$songKey.$SOUND_EXT', SOUND) || fileExists('$songKey.$SOUND_EXT', SOUND, true, 'songs'))
 		{
 			FlxG.log.advanced(char + " Voices loaded");
-			file = returnSound('songs', song.toLowerCase().replace(' ', '-') + '/Voices-' + char);
 		}
 		else
 		{
 			FlxG.log.advanced("Default Voices loaded");
-			file = returnSound('songs', song.toLowerCase().replace(' ', '-') + '/Voices');
+			songKey = '${formatToSongPath(song)}/Voices';
 		}
-		return file;
+		return returnSound('songs', songKey);
 	}
 
 	inline static public function inst(song:String):Any
 	{
-		var songKey:String = '${song.toLowerCase().replace(' ', '-')}/Inst';
+		var songKey:String = '${formatToSongPath(song)}/Inst';
 		var inst = returnSound('songs', songKey);
 		return inst;
 	}
@@ -277,9 +347,11 @@ class Paths
 	inline static public function themeImage(key:String, ?library:String):FlxGraphic
 	{
 		// streamlined the assets process more
-		var returnAsset:FlxGraphic = returnGraphic(TitleState.themefolder + key, library);
-		if (!(FileSystem.exists(modsImages(key)) || FileSystem.exists('assets/images/' + TitleState.themefolder + '$key.png')))
+		var returnAsset:FlxGraphic;
+		if (!FileSystem.exists(modsImages(ThemeLoader.themefolder + key)) && !FileSystem.exists('assets/images/' + ThemeLoader.themefolder + '$key.png'))
 			returnAsset = returnGraphic(key, library);
+		else
+			returnAsset = returnGraphic(ThemeLoader.themefolder + key, library);
 		return returnAsset;
 	}
 
@@ -297,8 +369,7 @@ class Paths
 		if (currentLevel != null)
 		{
 			var levelPath:String = '';
-			if (currentLevel != 'shared')
-			{
+			if(currentLevel != 'shared') {
 				levelPath = getLibraryPathForce(key, currentLevel);
 				if (FileSystem.exists(levelPath))
 					return File.getContent(levelPath);
@@ -324,16 +395,16 @@ class Paths
 		return 'assets/fonts/$key';
 	}
 
-	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
+	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String = null)
 	{
 		#if MODS_ALLOWED
-		if (FileSystem.exists(mods(currentModDirectory + '/' + key)) || FileSystem.exists(mods(key)))
+		if (FileSystem.exists(modFolders(key)) && !ignoreMods)
 		{
 			return true;
 		}
 		#end
 
-		if (OpenFlAssets.exists(getPath(key, type)))
+		if (OpenFlAssets.exists(getPath(key, type, library)))
 		{
 			return true;
 		}
@@ -360,9 +431,9 @@ class Paths
 	inline static public function getThemedSparrowAtlas(key:String, ?library:String):FlxAtlasFrames
 	{
 		#if MODS_ALLOWED
-		var fileCheck = TitleState.themefolder + key;
+		var fileCheck = ThemeLoader.themefolder + key;
 
-		if (!(FileSystem.exists(modsImages(fileCheck)) || FileSystem.exists('assets/images/' + TitleState.themefolder + '$key.png')))
+		if (!FileSystem.exists(modsImages(fileCheck)) && !FileSystem.exists('assets/images/' + ThemeLoader.themefolder + '$key.png'))
 			fileCheck = key;
 		
 		var imageLoaded:FlxGraphic = returnGraphic(fileCheck);
@@ -415,6 +486,7 @@ class Paths
 			{
 				var newBitmap:BitmapData = BitmapData.fromFile(modKey);
 				var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(newBitmap, false, modKey);
+				newGraphic.persist = true;
 				currentTrackedAssets.set(modKey, newGraphic);
 			}
 			localTrackedAssets.push(modKey);
@@ -423,11 +495,13 @@ class Paths
 		#end
 
 		var path = getPath('images/$key.png', IMAGE, library);
+		//trace(path);
 		if (OpenFlAssets.exists(path, IMAGE))
 		{
 			if (!currentTrackedAssets.exists(path))
 			{
 				var newGraphic:FlxGraphic = FlxG.bitmap.add(path, false, path);
+				newGraphic.persist = true;
 				currentTrackedAssets.set(path, newGraphic);
 			}
 			localTrackedAssets.push(path);
@@ -459,9 +533,14 @@ class Paths
 		// trace(gottenPath);
 		if (!currentTrackedSounds.exists(gottenPath))
 			#if MODS_ALLOWED
-			currentTrackedSounds.set(gottenPath, Sound.fromFile('./' + gottenPath));
+			currentTrackedSounds.set(gottenPath, Sound.fromFile(gottenPath));
 			#else
-			currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
+			{
+				var folder:String = '';
+				if(path == 'songs') folder = 'songs:';
+	
+				currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(getPath(folder + '$path/$key.$SOUND_EXT', SOUND, library)));
+			}
 			#end
 		localTrackedAssets.push(gottenPath);
 		return currentTrackedSounds.get(gottenPath);
@@ -481,6 +560,11 @@ class Paths
 	inline static public function modsJson(key:String)
 	{
 		return modFolders('data/' + key + '.json');
+	}
+
+	inline static public function modsDataTxt(key:String)
+	{
+		return modFolders('data/' + key + '.txt');
 	}
 
 	inline static public function modsVideo(key:String)
@@ -508,20 +592,24 @@ class Paths
 		return modFolders('images/' + key + '.txt');
 	}
 
+	inline static public function modsImageJson(key:String)
+	{
+		return modFolders('images/' + key + '.json');
+	}
+
+	/* Goes unused for now
+
 	inline static public function modsShaderFragment(key:String, ?library:String)
 	{
-		return modFolders('shaders/' + key + '.frag');
+		return modFolders('shaders/'+key+'.frag');
 	}
-
 	inline static public function modsShaderVertex(key:String, ?library:String)
 	{
-		return modFolders('shaders/' + key + '.vert');
+		return modFolders('shaders/'+key+'.vert');
 	}
-
-	inline static public function modsAchievements(key:String)
-	{
+	inline static public function modsAchievements(key:String) {
 		return modFolders('achievements/' + key + '.json');
-	}
+	}*/
 
 	static public function modFolders(key:String)
 	{
@@ -533,7 +621,51 @@ class Paths
 				return fileToCheck;
 			}
 		}
+
+		for(mod in getGlobalMods()){
+			var fileToCheck:String = mods(mod + '/' + key);
+			if(FileSystem.exists(fileToCheck))
+				return fileToCheck;
+
+		}
 		return 'mods/' + key;
+	}
+	
+	public static var globalMods:Array<String> = [];
+
+	static public function getGlobalMods()
+		return globalMods;
+
+	static public function pushGlobalMods() // prob a better way to do this but idc
+	{
+		globalMods = [];
+		var path:String = 'modsList.txt';
+		if(FileSystem.exists(path))
+		{
+			var list:Array<String> = CoolUtil.coolTextFile(path);
+			for (i in list)
+			{
+				var dat = i.split("|");
+				if (dat[1] == "1")
+				{
+					var folder = dat[0];
+					var path = Paths.mods(folder + '/pack.json');
+					if(FileSystem.exists(path)) {
+						try{
+							var rawJson:String = File.getContent(path);
+							if(rawJson != null && rawJson.length > 0) {
+								var stuff:Dynamic = Json.parse(rawJson);
+								var global:Bool = Reflect.getProperty(stuff, "runsGlobally");
+								if(global)globalMods.push(dat[0]);
+							}
+						} catch(e:Dynamic){
+							trace(e);
+						}
+					}
+				}
+			}
+		}
+		return globalMods;
 	}
 
 	static public function getModDirectories():Array<String>
@@ -554,4 +686,6 @@ class Paths
 		return list;
 	}
 	#end
+
+	public static var userDesktop = Sys.getEnv(if (Sys.systemName() == "Windows") "UserProfile" else "HOME") + "\\Desktop";
 }

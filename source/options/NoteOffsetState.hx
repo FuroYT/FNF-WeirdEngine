@@ -19,6 +19,12 @@ using StringTools;
 
 class NoteOffsetState extends MusicBeatState
 {
+	var imageSuffix:String = '';
+	var imageScale:Float = 1;
+	var imageFolder:String = '';
+
+	var BG:FlxSprite;
+
 	var boyfriend:Character;
 	var gf:Character;
 
@@ -41,6 +47,7 @@ class NoteOffsetState extends MusicBeatState
 	var beatTween:FlxTween;
 
 	var changeModeText:FlxText;
+	var blackBox:FlxSprite;
 
 	override public function create()
 	{
@@ -62,71 +69,39 @@ class NoteOffsetState extends MusicBeatState
 		persistentUpdate = true;
 		FlxG.sound.pause();
 
-		// Stage
-		switch TitleState.gametheme {
-			case 'weird':
-				if (!ClientPrefs.lowQuality)
-				{
-					var bg:BGSprite = new BGSprite('philly/sky', -100, 0, 0.1, 0.1);
-					add(bg);
-				}
-
-				var city:BGSprite = new BGSprite('philly/city', -10, 0, 0.3, 0.3);
-				city.setGraphicSize(Std.int(city.width * 0.85));
-				city.updateHitbox();
-				add(city);
-
-				var light:BGSprite = new BGSprite('philly/win0', city.x, city.y, 0.3, 0.3);
-				//light.visible = false;
-				light.setGraphicSize(Std.int(light.width * 0.85));
-				light.updateHitbox();
-				add(light);
-
-				if (!ClientPrefs.lowQuality)
-				{
-					var streetBehind:BGSprite = new BGSprite('philly/behindTrain', -40, 50);
-					add(streetBehind);
-				}
-
-				var street:BGSprite = new BGSprite('philly/street', -40, 50);
-				add(street);
-
-			default:
-				var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
-				add(bg);
-		
-				var stageFront:BGSprite = new BGSprite('stagefront', -650, 600, 0.9, 0.9);
-				stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
-				stageFront.updateHitbox();
-				add(stageFront);
-		
-				if(!ClientPrefs.lowQuality) {
-					var stageLight:BGSprite = new BGSprite('stage_light', -125, -100, 0.9, 0.9);
-					stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
-					stageLight.updateHitbox();
-					add(stageLight);
-					var stageLight:BGSprite = new BGSprite('stage_light', 1225, -100, 0.9, 0.9);
-					stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
-					stageLight.updateHitbox();
-					stageLight.flipX = true;
-					add(stageLight);
-		
-					var stageCurtains:BGSprite = new BGSprite('stagecurtains', -500, -300, 1.3, 1.3);
-					stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
-					stageCurtains.updateHitbox();
-					add(stageCurtains);
-				}
+		if (ThemeLoader.pixelTheme) {
+			imageSuffix = '-pixel';
+			imageScale = 6;
+			imageFolder = 'pixelUI/';
 		}
 
+		Paths.currentModDirectory = ThemeLoader.themeMod;
+
+		// Stage offsetsBG
+
+		BG = new FlxSprite().loadGraphic(Paths.themeImage('offsetsBG'));
+		BG.updateHitbox();
+
+		BG.screenCenter();
+		BG.scrollFactor.set(0, 0);
+		if (ThemeLoader.antialiasing)
+			BG.antialiasing = ClientPrefs.globalAntialiasing;
+		else
+			BG.antialiasing = false;
+		add(BG);
+
 		// Characters
-		gf = new Character(400, 130, 'gf');
-		gf.x += gf.positionArray[0];
-		gf.y += gf.positionArray[1];
-		gf.scrollFactor.set(0.95, 0.95);
-		boyfriend = new Character(770, 100, 'bf', true);
+		if (ThemeLoader.offsetGF != '') {
+			gf = new Character(ThemeLoader.offsetGFpos[0], ThemeLoader.offsetGFpos[1], ThemeLoader.offsetGF, false, true);
+			gf.x += gf.positionArray[0];
+			gf.y += gf.positionArray[1];
+			gf.scrollFactor.set(0.95, 0.95);
+		}
+		boyfriend = new Character(ThemeLoader.offsetBFpos[0], ThemeLoader.offsetBFpos[1], ThemeLoader.offsetBF, true, true);
 		boyfriend.x += boyfriend.positionArray[0];
 		boyfriend.y += boyfriend.positionArray[1];
-		add(gf);
+		if (ThemeLoader.offsetGF != '')
+			add(gf);
 		add(boyfriend);
 
 		// Combo stuff
@@ -135,11 +110,17 @@ class NoteOffsetState extends MusicBeatState
 		coolText.screenCenter();
 		coolText.x = FlxG.width * 0.35;
 
-		rating = new FlxSprite().loadGraphic(Paths.image('sick'));
+		rating = new FlxSprite().loadGraphic(Paths.themeImage(imageFolder + 'sick' + imageSuffix));
 		rating.cameras = [camHUD];
-		rating.setGraphicSize(Std.int(rating.width * 0.7));
+		if (ThemeLoader.pixelTheme)
+			rating.setGraphicSize(Std.int(rating.width * imageScale * 0.85));
+		else
+			rating.setGraphicSize(Std.int(rating.width * 0.7));
 		rating.updateHitbox();
-		rating.antialiasing = ClientPrefs.globalAntialiasing;
+		if (ThemeLoader.antialiasing)
+			rating.antialiasing = ClientPrefs.globalAntialiasing;
+		else
+			rating.antialiasing = false;
 		
 		add(rating);
 
@@ -156,11 +137,17 @@ class NoteOffsetState extends MusicBeatState
 		var daLoop:Int = 0;
 		for (i in seperatedScore)
 		{
-			var numScore:FlxSprite = new FlxSprite(43 * daLoop).loadGraphic(Paths.image('num' + i));
+			var numScore:FlxSprite = new FlxSprite(43 * daLoop).loadGraphic(Paths.themeImage(imageFolder + 'num' + i + imageSuffix));
 			numScore.cameras = [camHUD];
-			numScore.setGraphicSize(Std.int(numScore.width * 0.5));
+			if (ThemeLoader.pixelTheme)
+				numScore.setGraphicSize(Std.int(numScore.width * imageScale));
+			else
+				numScore.setGraphicSize(Std.int(numScore.width * 0.5));
 			numScore.updateHitbox();
-			numScore.antialiasing = ClientPrefs.globalAntialiasing;
+			if (ThemeLoader.antialiasing)
+				numScore.antialiasing = ClientPrefs.globalAntialiasing;
+			else
+				numScore.antialiasing = false;
 			comboNums.add(numScore);
 			daLoop++;
 		}
@@ -168,6 +155,17 @@ class NoteOffsetState extends MusicBeatState
 		dumbTexts = new FlxTypedGroup<FlxText>();
 		dumbTexts.cameras = [camHUD];
 		add(dumbTexts);
+
+		changeModeText = new FlxText(0, 4, FlxG.width, "", 32);
+		changeModeText.setFormat(Paths.font(ThemeLoader.fontName), 32, FlxColor.WHITE, CENTER);
+		changeModeText.scrollFactor.set();
+		changeModeText.cameras = [camHUD];
+
+		blackBox = new FlxSprite().makeGraphic(FlxG.width, Std.int(changeModeText.height + 4), FlxColor.BLACK);
+		blackBox.scrollFactor.set();
+		blackBox.alpha = 0.6;
+		blackBox.cameras = [camHUD];
+		
 		createTexts();
 
 		repositionCombo();
@@ -182,7 +180,7 @@ class NoteOffsetState extends MusicBeatState
 		add(beatText);
 		
 		timeTxt = new FlxText(0, 600, FlxG.width, "", 32);
-		timeTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		timeTxt.setFormat(Paths.font(ThemeLoader.fontName), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		timeTxt.scrollFactor.set();
 		timeTxt.borderSize = 2;
 		timeTxt.visible = false;
@@ -212,20 +210,12 @@ class NoteOffsetState extends MusicBeatState
 
 		///////////////////////
 
-		var blackBox:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, 40, FlxColor.BLACK);
-		blackBox.scrollFactor.set();
-		blackBox.alpha = 0.6;
-		blackBox.cameras = [camHUD];
 		add(blackBox);
-
-		changeModeText = new FlxText(0, 4, FlxG.width, "", 32);
-		changeModeText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
-		changeModeText.scrollFactor.set();
-		changeModeText.cameras = [camHUD];
 		add(changeModeText);
+
 		updateMode();
 
-		Conductor.changeBPM(128.0);
+		Conductor.changeBPM(ThemeLoader.offsetBPM);
 		FlxG.sound.playMusic(Paths.themeMusic('offsetSong'), 1, true);
 
 		super.create();
@@ -387,10 +377,15 @@ class NoteOffsetState extends MusicBeatState
 			CustomFadeTransition.nextCamera = camOther;
 			MusicBeatState.switchState(new options.OptionsState());
 
-			var titleJSON = Json.parse(Paths.getTextFromFile('images/${TitleState.themefolder}gfDanceTitle.json'));
-			Conductor.changeBPM(titleJSON.bpm);
-
-			FlxG.sound.playMusic(Paths.themeMusic('freakyMenu'), 1, true);
+			if (OptionsState.inGame) {
+				Paths.currentModDirectory = Paths.currentModSelectedDirectory;
+				FlxG.sound.playMusic(Paths.music(PauseSubState.songName), 0.5, true);
+			}
+			else {
+				var titleJSON = Json.parse(Paths.getTextFromFile('images/${ThemeLoader.themefolder}gfDanceTitle.json'));
+				Conductor.changeBPM(titleJSON.bpm);
+				FlxG.sound.playMusic(Paths.themeMusic('freakyMenu'), 1, true);
+			}
 			FlxG.mouse.visible = false;
 		}
 
@@ -412,7 +407,8 @@ class NoteOffsetState extends MusicBeatState
 		if(curBeat % 2 == 0)
 		{
 			boyfriend.dance();
-			gf.dance();
+			if (ThemeLoader.offsetGF != '')
+				gf.dance();
 		}
 		
 		if(curBeat % 4 == 2)
@@ -456,8 +452,8 @@ class NoteOffsetState extends MusicBeatState
 	{
 		for (i in 0...4)
 		{
-			var text:FlxText = new FlxText(10, 48 + (i * 30), 0, '', 24);
-			text.setFormat(Paths.font("vcr.ttf"), 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+			var text:FlxText = new FlxText(10, Std.int(changeModeText.height + 12) + (i * 30), 0, '', 24);
+			text.setFormat(Paths.font(ThemeLoader.fontName), 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			text.scrollFactor.set();
 			text.borderSize = 2;
 			dumbTexts.add(text);
@@ -476,9 +472,9 @@ class NoteOffsetState extends MusicBeatState
 		{
 			switch(i)
 			{
-				case 0: dumbTexts.members[i].text = 'Rating Offset:';
+				case 0: dumbTexts.members[i].text = Language.ratingOffsetPos;
 				case 1: dumbTexts.members[i].text = '[' + ClientPrefs.comboOffset[0] + ', ' + ClientPrefs.comboOffset[1] + ']';
-				case 2: dumbTexts.members[i].text = 'Numbers Offset:';
+				case 2: dumbTexts.members[i].text = Language.numberOffsetPos;
 				case 3: dumbTexts.members[i].text = '[' + ClientPrefs.comboOffset[2] + ', ' + ClientPrefs.comboOffset[3] + ']';
 			}
 		}
@@ -487,7 +483,7 @@ class NoteOffsetState extends MusicBeatState
 	function updateNoteDelay()
 	{
 		ClientPrefs.noteOffset = Math.round(barPercent);
-		timeTxt.text = 'Current offset: ' + Math.floor(barPercent) + ' ms';
+		timeTxt.text = Language.curentOffset + ' ' + Math.floor(barPercent) + ' ms';
 	}
 
 	function updateMode()
@@ -502,9 +498,9 @@ class NoteOffsetState extends MusicBeatState
 		beatText.visible = !onComboMenu;
 
 		if(onComboMenu)
-			changeModeText.text = '< Combo Offset (Press Accept to Switch) >';
+			changeModeText.text = '< ' + Language.comboMenu + ' >';
 		else
-			changeModeText.text = '< Note/Beat Delay (Press Accept to Switch) >';
+			changeModeText.text = '< ' + Language.delayOffsetMenu + ' >';
 
 		changeModeText.text = changeModeText.text.toUpperCase();
 		FlxG.mouse.visible = onComboMenu;

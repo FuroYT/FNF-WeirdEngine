@@ -33,7 +33,6 @@ typedef CharacterFile =
 	var flip_x:Bool;
 	var no_antialiasing:Bool;
 	var healthbar_colors:Array<Int>;
-	var hasWinIcon:Bool;
 }
 
 typedef AnimArray =
@@ -50,6 +49,7 @@ typedef AnimArray =
 class Character extends FlxSprite
 {
 	public var animOffsets:Map<String, Array<Dynamic>>;
+	public var animAdaptedLoop:Map<String, Int>;
 	public var debugMode:Bool = false;
 
 	public var isPlayer:Bool = false;
@@ -64,9 +64,9 @@ class Character extends FlxSprite
 	public var singDuration:Float = 4; // Multiplier of how long a character holds the sing pose
 	public var idleSuffix:String = '';
 	public var danceIdle:Bool = false; // Character use "danceLeft" and "danceRight" instead of "idle"
+	public var skipDance:Bool = false;
 
 	public var healthIcon:String = 'face';
-	public var hasWinIcon:Bool = false;
 	public var animationsArray:Array<AnimArray> = [];
 
 	public var positionArray:Array<Float> = [0, 0];
@@ -81,21 +81,34 @@ class Character extends FlxSprite
 	public var originalFlipX:Bool = false;
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 
+	public var inMenu:Bool = false;
+
 	public var hasAnAdaptativeLoop:Bool = false;
+	public var charType:String = 'dad';
+	public var camMoveX:Float = 0;
+	public var camMoveY:Float = 0;
+	public var camZoomMult:Float = 1;
+	public var camMoveMult:Float = 1;
+	public var camMoveIsPlayer:Float = 1;
 
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
-	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false)
+	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false, ?inMenu:Bool = false)
 	{
 		super(x, y);
 
 		#if (haxe >= "4.0.0")
 		animOffsets = new Map();
+		animAdaptedLoop = new Map();
 		#else
 		animOffsets = new Map<String, Array<Dynamic>>();
+		animAdaptedLoop = new Map<String, Int>();
 		#end
 		curCharacter = character;
+		this.inMenu = inMenu;
 		this.isPlayer = isPlayer;
+		if (isPlayer)
+			camMoveIsPlayer = -1;
 		antialiasing = ClientPrefs.globalAntialiasing;
 		var library:String = null;
 		switch (curCharacter)
@@ -140,7 +153,7 @@ class Character extends FlxSprite
 				// var modTextureToFind:String = Paths.modFolders("images/"+json.image);
 				// var textureToFind:String = Paths.getPath('images/' + json.image, new AssetType();
 
-				if (FileSystem.exists(modTxtToFind) || FileSystem.exists(txtToFind) || Assets.exists(txtToFind))
+				if (FileSystem.exists(modTxtToFind) || Assets.exists(txtToFind))
 				#else
 				if (Assets.exists(Paths.getPath('images/' + json.image + '.txt', TEXT)))
 				#end
@@ -155,7 +168,7 @@ class Character extends FlxSprite
 				// var modTextureToFind:String = Paths.modFolders("images/"+json.image);
 				// var textureToFind:String = Paths.getPath('images/' + json.image, new AssetType();
 
-				if (FileSystem.exists(modAnimToFind) || FileSystem.exists(animToFind) || Assets.exists(animToFind))
+				if (FileSystem.exists(modAnimToFind) || FileSystem.exists(animToFind))
 				#else
 				if (Assets.exists(Paths.getPath('images/' + json.image + '/Animation.json', TEXT)))
 				#end
@@ -198,11 +211,6 @@ class Character extends FlxSprite
 				if (json.healthbar_colors != null && json.healthbar_colors.length > 2)
 					healthColorArray = json.healthbar_colors;
 
-				if (json.hasWinIcon)
-					hasWinIcon = true;
-				else
-					hasWinIcon = false;	
-
 				antialiasing = !noAntialiasing;
 				if (!ClientPrefs.globalAntialiasing)
 					antialiasing = false;
@@ -215,14 +223,12 @@ class Character extends FlxSprite
 						var animAnim:String = '' + anim.anim;
 						var animName:String = '' + anim.name;
 						var animLoop:Bool = !!anim.loop; // Bruh
-						var animFps:Int;
+						var animFps:Int = anim.fps;
 						if (anim.adaptativeloop && animLoop)
 						{
-							animFps = Math.round(Conductor.characterspeed * anim.fps / 30);
+							addToAdaptative(anim.anim, anim.fps);
 							hasAnAdaptativeLoop = true;
 						}
-						else
-							animFps = anim.fps;
 						var animIndices:Array<Int> = anim.indices;
 						if (animIndices != null && animIndices.length > 0)
 						{
@@ -276,6 +282,14 @@ class Character extends FlxSprite
 					}
 			}*/
 		}
+
+		switch(curCharacter)
+		{
+			case 'pico-speaker':
+				skipDance = true;
+				loadMappedAnims();
+				playAnim("shoot1");
+		}
 	}
 
 	override function update(elapsed:Float)
@@ -300,6 +314,21 @@ class Character extends FlxSprite
 				specialAnim = false;
 				dance();
 			}
+			
+			switch(curCharacter)
+			{
+				case 'pico-speaker':
+					if(animationNotes.length > 0 && Conductor.songPosition > animationNotes[0][0])
+					{
+						var noteData:Int = 1;
+						if(animationNotes[0][1] > 2) noteData = 3;
+
+						noteData += FlxG.random.int(0, 1);
+						playAnim('shoot' + noteData, true);
+						animationNotes.shift();
+					}
+					if(animation.curAnim.finished) playAnim(animation.curAnim.name, false, false, animation.curAnim.frames.length - 3);
+			}
 
 			if (!isPlayer)
 			{
@@ -308,9 +337,16 @@ class Character extends FlxSprite
 					holdTimer += elapsed;
 				}
 
-				if (holdTimer >= Conductor.stepCrochet * 0.001 * singDuration)
+				if (holdTimer >= Conductor.stepCrochet * 0.0011 * singDuration)
 				{
-					dance();
+					if (animAdaptedLoop.exists('idle' + idleSuffix))
+					{
+						animation.curAnim.name = '';
+					}
+					else
+					{
+						dance();
+					}
 					holdTimer = 0;
 				}
 			}
@@ -330,7 +366,7 @@ class Character extends FlxSprite
 	 */
 	public function dance()
 	{
-		if (!debugMode && !specialAnim)
+		if (!debugMode && !skipDance && !specialAnim)
 		{
 			if (danceIdle)
 			{
@@ -345,6 +381,15 @@ class Character extends FlxSprite
 			{
 				playAnim('idle' + idleSuffix);
 			}
+
+			if (!inMenu){
+				if (PlayState.instance.cameraMoveOffset != 0 && ClientPrefs.cameraMovement){
+					camMoveX = 0;
+					camMoveY = 0;
+					if (charType == PlayState.instance.charToFolow && !PlayState.instance.isCameraOnForcedPos)
+					PlayState.instance.moveCamera();
+				}
+			}
 		}
 	}
 
@@ -353,9 +398,9 @@ class Character extends FlxSprite
 		specialAnim = false;
 		animation.play(AnimName, Force, Reversed, Frame);
 
-		var daOffset = animOffsets.get(AnimName);
 		if (animOffsets.exists(AnimName))
 		{
+			var daOffset = animOffsets.get(AnimName);
 			offset.set(daOffset[0], daOffset[1]);
 		}
 		else
@@ -377,6 +422,47 @@ class Character extends FlxSprite
 				danced = !danced;
 			}
 		}
+
+		if (!inMenu){
+			if (AnimName.startsWith('sing')&& PlayState.instance.cameraMoveOffset != 0 && ClientPrefs.cameraMovement && camMoveMult != 0 && !AnimName.contains('miss')){
+				if (AnimName.startsWith('singLEFT')){
+					camMoveX = -1 * PlayState.instance.cameraMoveOffset * camMoveMult;
+					camMoveY = 0;
+				}
+				else if (AnimName.startsWith('singDOWN')){
+					camMoveX = 0;
+					camMoveY = PlayState.instance.cameraMoveOffset * camMoveMult;
+				}
+				else if (AnimName.startsWith('singUP')){
+					camMoveX = 0;
+					camMoveY = -1 * PlayState.instance.cameraMoveOffset * camMoveMult;
+				}
+				else if (AnimName.startsWith('singRIGHT')){
+					camMoveX = PlayState.instance.cameraMoveOffset * camMoveMult;
+					camMoveY = 0;
+				}
+
+				if (charType == PlayState.instance.charToFolow && !PlayState.instance.isCameraOnForcedPos)
+					PlayState.instance.moveCamera();
+			}
+		}
+	}
+	
+	function loadMappedAnims():Void
+	{
+		var noteData:Array<SwagSection> = Song.loadFromJson('picospeaker', Paths.formatToSongPath(PlayState.SONG.song)).notes;
+		for (section in noteData) {
+			for (songNotes in section.sectionNotes) {
+				animationNotes.push(songNotes);
+			}
+		}
+		TankmenBG.animationNotes = animationNotes;
+		animationNotes.sort(sortAnims);
+	}
+
+	function sortAnims(Obj1:Array<Dynamic>, Obj2:Array<Dynamic>):Int
+	{
+		return FlxSort.byValues(FlxSort.ASCENDING, Obj1[0], Obj2[0]);
 	}
 
 	public var danceEveryNumBeats:Int = 2;
@@ -385,29 +471,70 @@ class Character extends FlxSprite
 
 	public function recalculateDanceIdle()
 	{
-		var lastDanceIdle:Bool = danceIdle;
+		//var lastDanceIdle:Bool = danceIdle;
+		if (animation.getByName('idle' + idleSuffix) == null && animation.getByName('danceLeft' + idleSuffix) == null && animation.getByName('danceRight' + idleSuffix) == null)
+		{
+			idleSuffix = '';
+		}
 		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
+		
+		if (animation.getByName('idle' + idleSuffix) == null && animation.getByName('danceLeft' + idleSuffix) == null && animation.getByName('danceRight' + idleSuffix) == null)
+		{
+			danceEveryNumBeats = 2;
+			return;
+		}
 
+		/*
 		if (settingCharacterUp)
 		{
 			danceEveryNumBeats = (danceIdle ? 1 : 2);
+			//danceEveryNumBeats = 1;
 		}
 		else if (lastDanceIdle != danceIdle)
-		{
+		{*/
 			var calc:Float = danceEveryNumBeats;
-			if (danceIdle)
-				calc /= 2;
+			if (danceIdle){
+				//calc /= 2;
+				calc = 1;
+			}
 			else
-				calc *= 2;
+			{
+				//calc *= 2;
+				calc = (animation.getByName('idle' + idleSuffix).numFrames*animation.getByName('idle' + idleSuffix).frameRate)/Conductor.bpm;
+				if (calc > 1)
+					calc = 2;
+		
+				if (animAdaptedLoop.exists('idle' + idleSuffix))
+				{
+					var songBPM = Conductor.bpm;
+					if (Conductor.bpm < 30)
+						songBPM = Conductor.bpm * 2;
+					else if (Conductor.bpm > 180)
+						songBPM = Conductor.bpm / 8;
+					else if (Conductor.bpm > 90)
+						songBPM = Conductor.bpm / 4;
+					else if (Conductor.bpm > 60)
+						songBPM = Conductor.bpm / 2;
+		
+					animation.getByName('idle' + idleSuffix).frameRate = 30*songBPM/animAdaptedLoop.get('idle' + idleSuffix);
+					calc = 1;
+				}
+			}
 
 			danceEveryNumBeats = Math.round(Math.max(calc, 1));
-		}
+			//trace(danceEveryNumBeats);
+		//}
 		settingCharacterUp = false;
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0)
 	{
 		animOffsets[name] = [x, y];
+	}
+
+	public function addToAdaptative(name:String, frames:Int)
+	{
+		animAdaptedLoop[name] = frames;
 	}
 
 	public function quickAnimAdd(name:String, anim:String)

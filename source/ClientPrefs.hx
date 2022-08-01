@@ -4,36 +4,69 @@ import flixel.FlxG;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
+import lime.system.DisplayMode;
+import lime.app.Application;
 import Controls;
 
 class ClientPrefs
 {
-	public static var language:String = 'en';
+	public static var vSyncFPS:Int = 60;
+	public static var curFramerate:Int = 60;
+
+	public static var language:String = null;
 	public static var downScroll:Bool = false;
 	public static var middleScroll:Bool = false;
-	public static var showFPS:Bool = true;
+	public static var opponentStrums:Bool = true;
+	public static var showFPS:Bool = #if android false #else true #end;
 	public static var flashing:Bool = true;
 	public static var globalAntialiasing:Bool = true;
+	public static var unfocuPause:Bool = true;
 	public static var noteSplashes:Bool = true;
 	public static var lowQuality:Bool = false;
-	public static var framerate:Int = 60;
+	public static var framerate:Dynamic = #if desktop 'V-Sync' #else 60 #end;
 	public static var cursing:Bool = true;
 	public static var violence:Bool = true;
 	public static var camZooms:Bool = true;
 	public static var hideHud:Bool = false;
 	public static var noteOffset:Int = 0;
-	public static var arrowHSV:Array<Array<Int>> = [
-		[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0],
-		[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
+	//public static var arrowHSV:Array<Array<Int>> = [
+	//	[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
+	public static var arrowHSV:Map<String, Array<Int>> = [
+		'A' => [0, 0, 0],
+		'B' => [0, 0, 0],
+		'C' => [0, 0, 0],
+		'D' => [0, 0, 0],
+		'E' => [0, 0, 0],
+		'F' => [0, 0, 0],
+		'G' => [0, 0, 0],
+		'H' => [0, 0, 0],
+		'I' => [0, 0, 0],
+		'J' => [0, 0, 0],
+		'K' => [0, 0, 0],
+		'L' => [0, 0, 0],
+		'M' => [0, 0, 0],
+		'N' => [0, 0, 0],
+		'O' => [0, 0, 0],
+		'P' => [0, 0, 0],
+		'Q' => [0, 0, 0],
+		'R' => [0, 0, 0]
+	];
+	public static var vibration:Bool = false;
 	public static var imagesPersist:Bool = false;
 	public static var ghostTapping:Bool = true;
 	public static var timeBarType:String = 'Time Left';
 	public static var scoreZoom:Bool = true;
+	public static var cameraMovement:Bool = true;
 	public static var noReset:Bool = false;
 	public static var healthBarAlpha:Float = 1;
-	public static var controllerMode:Bool = false;
+	public static var keyboardMode:Bool = #if android false #else true #end;
+	public static var controllerMode:Bool = #if android true #else false #end;
 	public static var hitsoundVolume:Float = 0;
 	public static var pauseMusic:String = 'Breakfast';
+	public static var subtitles:Bool = true;
+	public static var checkForUpdates:Bool = true;
+	public static var checkForPsychUpdates:Bool = true;
+	public static var soundEffectVolume:Float = 1;
 	public static var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative',
@@ -56,6 +89,7 @@ class ClientPrefs
 	];
 
 	public static var comboOffset:Array<Int> = [0, 0, 0, 0];
+	public static var raitingInStage:Bool = false;
 	public static var noAntimash:Bool = false;
 	public static var ratingOffset:Int = 0;
 	public static var sickWindow:Int = 45;
@@ -140,11 +174,13 @@ class ClientPrefs
 		'back' => [BACKSPACE, ESCAPE],
 		'pause' => [ENTER, ESCAPE],
 		'reset' => [R, NONE],
+		'fullscreen' => [F11, NONE],
 		'volume_mute' => [ZERO, NONE],
 		'volume_up' => [NUMPADPLUS, PLUS],
 		'volume_down' => [NUMPADMINUS, MINUS],
 		'debug_1' => [SEVEN, NONE],
-		'debug_2' => [EIGHT, NONE]
+		'debug_2' => [EIGHT, NONE],
+		'debug_3' => [SIX, NONE]
 	];
 	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
 
@@ -158,9 +194,11 @@ class ClientPrefs
 	{
 		FlxG.save.data.downScroll = downScroll;
 		FlxG.save.data.middleScroll = middleScroll;
+		FlxG.save.data.opponentStrums = opponentStrums;
 		FlxG.save.data.showFPS = showFPS;
 		FlxG.save.data.flashing = flashing;
 		FlxG.save.data.globalAntialiasing = globalAntialiasing;
+		FlxG.save.data.unfocuPause = unfocuPause;
 		FlxG.save.data.noteSplashes = noteSplashes;
 		FlxG.save.data.lowQuality = lowQuality;
 		FlxG.save.data.framerate = framerate;
@@ -170,26 +208,34 @@ class ClientPrefs
 		FlxG.save.data.noteOffset = noteOffset;
 		FlxG.save.data.hideHud = hideHud;
 		FlxG.save.data.hsv11 = arrowHSV;
+		FlxG.save.data.vibration = vibration;
 		FlxG.save.data.imagesPersist = imagesPersist;
 		FlxG.save.data.ghostTapping = ghostTapping;
 		FlxG.save.data.timeBarType = timeBarType;
 		FlxG.save.data.language = language;
 		FlxG.save.data.scoreZoom = scoreZoom;
+		FlxG.save.data.cameraMovement = cameraMovement;
 		FlxG.save.data.noReset = noReset;
 		FlxG.save.data.healthBarAlpha = healthBarAlpha;
 		FlxG.save.data.comboOffset = comboOffset;
 		FlxG.save.data.achievementsMap = Achievements.achievementsMap;
 		FlxG.save.data.henchmenDeath = Achievements.henchmenDeath;
 		FlxG.save.data.noAntimash = noAntimash;
+		FlxG.save.data.raitingInStage = raitingInStage;
 		FlxG.save.data.ratingOffset = ratingOffset;
 		FlxG.save.data.sickWindow = sickWindow;
 		FlxG.save.data.goodWindow = goodWindow;
 		FlxG.save.data.badWindow = badWindow;
 		FlxG.save.data.safeFrames = safeFrames;
 		FlxG.save.data.gameplaySettings = gameplaySettings;
+		FlxG.save.data.keyboardMode = keyboardMode;
 		FlxG.save.data.controllerMode = controllerMode;
 		FlxG.save.data.hitsoundVolume = hitsoundVolume;
 		FlxG.save.data.pauseMusic = pauseMusic;
+		FlxG.save.data.subtitles = subtitles;
+		FlxG.save.data.checkForUpdates = checkForUpdates;
+		FlxG.save.data.checkForPsychUpdates = checkForPsychUpdates;
+		FlxG.save.data.soundEffectVolume = soundEffectVolume;
 
 		FlxG.save.flush();
 
@@ -202,6 +248,8 @@ class ClientPrefs
 
 	public static function loadPrefs()
 	{
+		vSyncFPS = Math.round(Application.current.window.displayMode.refreshRate);
+
 		if (FlxG.save.data.downScroll != null)
 		{
 			downScroll = FlxG.save.data.downScroll;
@@ -209,6 +257,9 @@ class ClientPrefs
 		if (FlxG.save.data.middleScroll != null)
 		{
 			middleScroll = FlxG.save.data.middleScroll;
+		}
+		if(FlxG.save.data.opponentStrums != null) {
+			opponentStrums = FlxG.save.data.opponentStrums;
 		}
 		if (FlxG.save.data.showFPS != null)
 		{
@@ -226,6 +277,10 @@ class ClientPrefs
 		{
 			globalAntialiasing = FlxG.save.data.globalAntialiasing;
 		}
+		if (FlxG.save.data.unfocuPause != null)
+		{
+			unfocuPause = FlxG.save.data.unfocuPause;
+		}
 		if (FlxG.save.data.noteSplashes != null)
 		{
 			noteSplashes = FlxG.save.data.noteSplashes;
@@ -237,15 +292,21 @@ class ClientPrefs
 		if (FlxG.save.data.framerate != null)
 		{
 			framerate = FlxG.save.data.framerate;
-			if (framerate > FlxG.drawFramerate)
+
+			if (framerate == 'V-sync')
+				curFramerate = vSyncFPS;
+			else
+				curFramerate = Math.round(framerate);
+
+			if (curFramerate > FlxG.drawFramerate)
 			{
-				FlxG.updateFramerate = framerate;
-				FlxG.drawFramerate = framerate;
+				FlxG.updateFramerate = curFramerate;
+				FlxG.drawFramerate = curFramerate;
 			}
 			else
 			{
-				FlxG.drawFramerate = framerate;
-				FlxG.updateFramerate = framerate;
+				FlxG.drawFramerate = curFramerate;
+				FlxG.updateFramerate = curFramerate;
 			}
 		}
 		/*if(FlxG.save.data.cursing != null) {
@@ -266,9 +327,12 @@ class ClientPrefs
 		{
 			noteOffset = FlxG.save.data.noteOffset;
 		}
-		if (FlxG.save.data.hsv11 != null)
+		if (FlxG.save.data.hsv11 != null && !Std.isOfType(FlxG.save.data.hsv11, Array))
 		{
 			arrowHSV = FlxG.save.data.hsv11;
+		}
+		if(FlxG.save.data.vibration != null) {
+			vibration = FlxG.save.data.vibration;
 		}
 		if (FlxG.save.data.ghostTapping != null)
 		{
@@ -285,6 +349,10 @@ class ClientPrefs
 		if (FlxG.save.data.scoreZoom != null)
 		{
 			scoreZoom = FlxG.save.data.scoreZoom;
+		}
+		if (FlxG.save.data.cameraMovement != null)
+		{
+			cameraMovement = FlxG.save.data.cameraMovement;
 		}
 		if (FlxG.save.data.noReset != null)
 		{
@@ -323,6 +391,9 @@ class ClientPrefs
 		{
 			controllerMode = FlxG.save.data.controllerMode;
 		}
+		if(FlxG.save.data.keyboardMode != null) {
+			keyboardMode = FlxG.save.data.keyboardMode;
+		}
 		if (FlxG.save.data.hitsoundVolume != null)
 		{
 			hitsoundVolume = FlxG.save.data.hitsoundVolume;
@@ -353,6 +424,31 @@ class ClientPrefs
 		if (FlxG.save.data.noAntimash != null)
 		{
 			noAntimash = FlxG.save.data.noAntimash;
+		}
+
+		if (FlxG.save.data.raitingInStage != null)
+		{
+			raitingInStage = FlxG.save.data.raitingInStage;
+		}
+
+		if (FlxG.save.data.subtitles != null)
+		{
+			subtitles = FlxG.save.data.subtitles;
+		}
+
+		if (FlxG.save.data.checkForUpdates != null)
+		{
+			checkForUpdates = FlxG.save.data.checkForUpdates;
+		}
+
+		if (FlxG.save.data.checkForPsychUpdates != null)
+		{
+			checkForPsychUpdates = FlxG.save.data.checkForPsychUpdates;
+		}
+
+		if (FlxG.save.data.soundEffectVolume != null)
+		{
+			soundEffectVolume = FlxG.save.data.soundEffectVolume;
 		}
 
 		var save:FlxSave = new FlxSave();

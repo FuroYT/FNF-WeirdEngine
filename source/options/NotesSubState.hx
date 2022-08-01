@@ -7,6 +7,7 @@ import flash.text.TextField;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxGridOverlay;
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
@@ -43,6 +44,7 @@ class NotesSubState extends MusicBeatSubstate
 	var hsbText:Alphabet;
 
 	var posX = 230;
+	var possesY:Array<Float> = [];
 
 	public function new()
 	{
@@ -63,30 +65,47 @@ class NotesSubState extends MusicBeatSubstate
 		grpNumbers = new FlxTypedGroup<Alphabet>();
 		add(grpNumbers);
 
-		for (i in 0...ClientPrefs.arrowHSV.length)
+		for (i in 0...Note.usablesLetters.length)
 		{
+			var letter = Note.usablesLetters[i];
 			var yPos:Float = (80 * i) - 40;
 			for (j in 0...3)
 			{
-				var optionText:Alphabet = new Alphabet(0, yPos + 60, Std.string(ClientPrefs.arrowHSV[i][j]), true, false, 0.05, 0.8);
+				var optionText:Alphabet = new Alphabet(0, yPos + 60, Std.string(ClientPrefs.arrowHSV.get(letter)[j]), true, false, 0.05, 0.8);
 				optionText.x = posX + (225 * j) + 250;
 				grpNumbers.add(optionText);
 			}
 
 			var note:FlxSprite = new FlxSprite(posX, yPos);
 			note.frames = Paths.getSparrowAtlas('NOTE_assets');
-			var animation:String = Note.keysShit.get(Note.maxMania).get('letters')[i] + '0';
+			var animation:String = letter + '0';
 			note.animation.addByPrefix('idle', animation);
+			switch (letter){
+				case 'A':
+					if (note.animation.getByName('idle') == null)
+						note.animation.addByPrefix('idle', 'purple0');
+				case 'B':
+					if (note.animation.getByName('idle') == null)
+						note.animation.addByPrefix('idle', 'blue0');
+				case 'C':
+					if (note.animation.getByName('idle') == null)
+						note.animation.addByPrefix('idle', 'green0');
+				case 'D':
+					if (note.animation.getByName('idle') == null)
+						note.animation.addByPrefix('idle', 'red0');
+			}
 			note.animation.play('idle');
 			note.antialiasing = ClientPrefs.globalAntialiasing;
 			grpNotes.add(note);
 
 			var newShader:ColorSwap = new ColorSwap();
 			note.shader = newShader.shader;
-			newShader.hue = ClientPrefs.arrowHSV[i][0] / 360;
-			newShader.saturation = ClientPrefs.arrowHSV[i][1] / 100;
-			newShader.brightness = ClientPrefs.arrowHSV[i][2] / 100;
+			newShader.hue = ClientPrefs.arrowHSV.get(letter)[0] / 360;
+			newShader.saturation = ClientPrefs.arrowHSV.get(letter)[1] / 100;
+			newShader.brightness = ClientPrefs.arrowHSV.get(letter)[2] / 100;
 			shaderArray.push(newShader);
+
+			possesY.push(yPos);
 		}
 
 		hsbText = new Alphabet(0, 0, Language.noteColorsSettings, false, false, 0, 0.65);
@@ -94,6 +113,10 @@ class NotesSubState extends MusicBeatSubstate
 		add(hsbText);
 
 		changeSelection();
+
+		#if android
+		addVirtualPad(FULL, A_B_C);
+		#end
 	}
 
 	var changingNote:Bool = false;
@@ -114,7 +137,7 @@ class NotesSubState extends MusicBeatSubstate
 					updateValue(1);
 					FlxG.sound.play(Paths.themeSound('optionChange'));
 				}
-				else if (controls.RESET)
+				else if (controls.RESET #if android || _virtualpad.buttonC.justPressed #end)
 				{
 					resetValue(curSelected, typeSelected);
 					FlxG.sound.play(Paths.themeSound('reset'));
@@ -173,7 +196,7 @@ class NotesSubState extends MusicBeatSubstate
 				changeType(1);
 				FlxG.sound.play(Paths.themeSound('scrollMenu'));
 			}
-			if (controls.RESET)
+			if (controls.RESET #if android || _virtualpad.buttonC.justPressed #end)
 			{
 				for (i in 0...3)
 				{
@@ -213,7 +236,12 @@ class NotesSubState extends MusicBeatSubstate
 		{
 			if (!changingNote)
 			{
+					#if android
+				FlxTransitionableState.skipNextTransOut = true;
+				FlxG.resetState();
+					#else
 				close();
+					#end
 			}
 			else
 			{
@@ -234,17 +262,25 @@ class NotesSubState extends MusicBeatSubstate
 	{
 		curSelected += change;
 		if (curSelected < 0)
-			curSelected = ClientPrefs.arrowHSV.length - 1;
-		if (curSelected >= ClientPrefs.arrowHSV.length)
+			curSelected = Note.usablesLetters.length - 1;
+		if (curSelected >= Note.usablesLetters.length)
 			curSelected = 0;
 
-		curValue = ClientPrefs.arrowHSV[curSelected][typeSelected];
+		var ajustY:Float = 0;
+		for (i in 1...(Note.usablesLetters.length % 8)+1)
+		{
+			if (curSelected > i*8)
+				ajustY = -720*i;
+		}
+
+		curValue = ClientPrefs.arrowHSV.get(Note.usablesLetters[curSelected])[typeSelected];
 		updateValue();
 
 		for (i in 0...grpNumbers.length)
 		{
 			var item = grpNumbers.members[i];
 			item.alpha = 0.6;
+			item.y = possesY[Math.floor(i/3)] + 60 + ajustY;
 			if ((curSelected * 3) + typeSelected == i)
 			{
 				item.alpha = 1;
@@ -255,6 +291,7 @@ class NotesSubState extends MusicBeatSubstate
 			var item = grpNotes.members[i];
 			item.alpha = 0.6;
 			item.scale.set(0.5, 0.5);
+			item.y = possesY[i] + ajustY;
 			if (curSelected == i)
 			{
 				item.alpha = 1;
@@ -274,7 +311,7 @@ class NotesSubState extends MusicBeatSubstate
 		if (typeSelected > 2)
 			typeSelected = 0;
 
-		curValue = ClientPrefs.arrowHSV[curSelected][typeSelected];
+		curValue = ClientPrefs.arrowHSV.get(Note.usablesLetters[curSelected])[typeSelected];
 		updateValue();
 
 		for (i in 0...grpNumbers.length)
@@ -291,7 +328,7 @@ class NotesSubState extends MusicBeatSubstate
 	function resetValue(selected:Int, type:Int)
 	{
 		curValue = 0;
-		ClientPrefs.arrowHSV[selected][type] = 0;
+		ClientPrefs.arrowHSV.get(Note.usablesLetters[selected])[type] = 0;
 		switch (type)
 		{
 			case 0:
@@ -327,7 +364,7 @@ class NotesSubState extends MusicBeatSubstate
 			curValue = max;
 		}
 		roundedValue = Math.round(curValue);
-		ClientPrefs.arrowHSV[curSelected][typeSelected] = roundedValue;
+		ClientPrefs.arrowHSV.get(Note.usablesLetters[curSelected])[typeSelected] = roundedValue;
 
 		switch (typeSelected)
 		{

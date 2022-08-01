@@ -16,6 +16,7 @@ typedef StageFile = {
 	var directory:String;
 	var defaultZoom:Float;
 	var isPixelStage:Bool;
+	//var stageTheme:String;
 
 	var boyfriend:Array<Dynamic>;
 	var girlfriend:Array<Dynamic>;
@@ -26,6 +27,9 @@ typedef StageFile = {
 	var camera_opponent:Array<Float>;
 	var camera_girlfriend:Array<Float>;
 	var camera_speed:Null<Float>;
+	var camera_move_offset:Null<Float>;
+
+	var combo_placement:Array<Float>;
 }
 
 class StageData {
@@ -51,6 +55,8 @@ class StageData {
 					stage = 'school';
 				case 'thorns':
 					stage = 'schoolEvil';
+				case 'ugh' | 'guns' | 'stress':
+					stage = 'tank';
 				default:
 					stage = 'stage';
 			}

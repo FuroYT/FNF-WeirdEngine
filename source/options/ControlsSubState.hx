@@ -7,6 +7,7 @@ import flash.text.TextField;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.addons.display.FlxGridOverlay;
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
@@ -140,6 +141,7 @@ class ControlsSubState extends MusicBeatSubstate
 		[Language.accept, 'accept'],
 		[Language.back, 'back'],
 		[Language.pause, 'pause'],
+		[Language.fullscreen, 'fullscreen'],
 		[''],
 		[Language.volume],
 		[Language.mute, 'volume_mute'],
@@ -148,7 +150,8 @@ class ControlsSubState extends MusicBeatSubstate
 		[''],
 		[Language.debug],
 		[Language.key + ' 1', 'debug_1'],
-		[Language.key + ' 2', 'debug_2']
+		[Language.key + ' 2', 'debug_2'],
+		[Language.key + ' 3', 'debug_3']
 	];
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
@@ -209,6 +212,12 @@ class ControlsSubState extends MusicBeatSubstate
 			}
 		}
 		changeSelection();
+
+		canFullscreen = false;
+
+		#if android
+		addVirtualPad(FULL, A_B);
+		#end
 	}
 
 	var leaving:Bool = false;
@@ -234,7 +243,12 @@ class ControlsSubState extends MusicBeatSubstate
 			if (controls.BACK)
 			{
 				ClientPrefs.reloadControls();
+					#if android
+				FlxTransitionableState.skipNextTransOut = true;
+				FlxG.resetState();
+					#else
 				close();
+					#end
 				FlxG.sound.play(Paths.themeSound('cancelMenu'));
 			}
 

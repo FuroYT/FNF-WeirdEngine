@@ -44,7 +44,7 @@ class AchievementsMenuState extends MusicBeatState
 
 		Achievements.loadAchievements();
 		for (i in 0...Achievements.achievementsStuff.length) {
-			if(!Achievements.achievementsStuff[i][4] || Achievements.achievementsMap.exists(Achievements.achievementsStuff[i][2])) {
+			if(!Achievements.achievementsStuff[i][3] || Achievements.achievementsMap.exists(Achievements.achievementsStuff[i][2])) {
 				options.push(Achievements.achievementsStuff[i]);
 				achievementIndex.push(i);
 			}
@@ -66,11 +66,15 @@ class AchievementsMenuState extends MusicBeatState
 		}
 
 		descText = new FlxText(150, 600, 980, "", 32);
-		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		descText.setFormat(Paths.font(ThemeLoader.fontName), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		descText.scrollFactor.set();
 		descText.borderSize = 2.4;
 		add(descText);
 		changeSelection();
+
+		#if android
+		addVirtualPad(UP_DOWN, B);
+		#end
 
 		super.create();
 	}
@@ -86,7 +90,7 @@ class AchievementsMenuState extends MusicBeatState
 		}
 
 		if (controls.BACK) {
-			FlxG.sound.play(Paths.sound('cancelMenu'));
+			FlxG.sound.play(Paths.themeSound('cancelMenu'));
 			MusicBeatState.switchState(new MainMenuState());
 		}
 	}
@@ -117,7 +121,7 @@ class AchievementsMenuState extends MusicBeatState
 			}
 		}
 		descText.text = Achievements.achievementsStuff[achievementIndex[curSelected]][1];
-		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+		FlxG.sound.play(Paths.themeSound('scrollMenu'), 0.4);
 	}
 	#end
 }

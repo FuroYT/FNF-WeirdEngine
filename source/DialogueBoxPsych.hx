@@ -17,6 +17,11 @@ import sys.FileSystem;
 import sys.io.File;
 #end
 import openfl.utils.Assets;
+import openfl.utils.AssetType;
+import openfl.utils.Assets as OpenFlAssets;
+import lime.utils.Assets;
+import flash.media.Sound;
+import flixel.system.FlxSound;
 
 using StringTools;
 
@@ -51,6 +56,7 @@ typedef DialogueLine = {
 	var boxState:Null<String>;
 	var speed:Null<Float>;
 	var sound:Null<String>;
+	var voiceline:Null<Bool>;
 }
 
 class DialogueCharacter extends FlxSprite
@@ -173,6 +179,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	var bgFade:FlxSprite = null;
 	var box:FlxSprite;
 	var textToType:String = '';
+	public var voicelineSound:FlxSound = new FlxSound();
 
 	var arrayCharacters:Array<DialogueCharacter> = [];
 
@@ -293,7 +300,19 @@ class DialogueBoxPsych extends FlxSpriteGroup
 			bgFade.alpha += 0.5 * elapsed;
 			if(bgFade.alpha > 0.5) bgFade.alpha = 0.5;
 
-			if(PlayerSettings.player1.controls.ACCEPT) {
+			#if android
+					var justTouched:Bool = false;
+
+			for (touch in FlxG.touches.list)
+			{
+				if (touch.justPressed)
+				{
+					justTouched = true;
+				}
+			}
+			#end
+
+			if(PlayerSettings.player1.controls.ACCEPT #if android || justTouched #end) {
 				if(!daText.finishedText) {
 					if(daText != null) {
 						daText.killTheTimer();
@@ -306,6 +325,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 					
 					if(skipDialogueThing != null) {
 						skipDialogueThing();
+						voicelineSound.stop();
 					}
 				} else if(currentText >= dialogueList.dialogue.length) {
 					dialogueEnded = true;
@@ -494,7 +514,34 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		}
 
 		textToType = curDialogue.text;
-		Alphabet.setDialogueSound(curDialogue.sound);
+
+		var voiceline:Bool = false;
+		if (curDialogue.voiceline)
+			voiceline = true;
+
+		Alphabet.setDialogueSound(curDialogue.sound, voiceline);
+		voicelineSound.stop();
+		if (voiceline){
+			#if MODS_ALLOWED
+				if (FileSystem.exists(Paths.modsSounds('sounds','voicelines/${curDialogue.sound}-${ClientPrefs.language}')) || FileSystem.exists(Paths.getPath('voicelines/${curDialogue.sound}-${ClientPrefs.language}.${Paths.SOUND_EXT}', SOUND))) {
+					voicelineSound = new FlxSound().loadEmbedded(Paths.sound('voicelines/${curDialogue.sound}-${ClientPrefs.language}'));
+				}
+				else if (FileSystem.exists(Paths.modsSounds('sounds','voicelines/${curDialogue.sound}')) || FileSystem.exists(Paths.getPath('voicelines/${curDialogue.sound}.${Paths.SOUND_EXT}', SOUND))) {
+					voicelineSound = new FlxSound().loadEmbedded(Paths.sound('voicelines/${curDialogue.sound}'));
+				}
+			#else
+				if (OpenFlAssets.exists(Paths.getPath('voicelines/${curDialogue.sound}-${ClientPrefs.language}.${Paths.SOUND_EXT}', SOUND))) {
+					voicelineSound = new FlxSound().loadEmbedded(Paths.sound('voicelines/${curDialogue.sound}-${ClientPrefs.language}'));
+				}
+				else if (OpenFlAssets.exists(Paths.getPath('voicelines/${curDialogue.sound}.${Paths.SOUND_EXT}', SOUND))) {
+					voicelineSound = new FlxSound().loadEmbedded(Paths.sound('voicelines/${curDialogue.sound}'));
+				}
+			#end
+		}
+		else {
+			voicelineSound = new FlxSound();
+		}
+		voicelineSound.play();
 		daText = new Alphabet(DEFAULT_TEXT_X, DEFAULT_TEXT_Y, textToType, false, true, curDialogue.speed, 0.7);
 		add(daText);
 
@@ -516,22 +563,13 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	}
 
 	public static function parseDialogue(path:String):DialogueFile {
-		var pathSearch:String;
 		#if MODS_ALLOWED
-		if (!FileSystem.exists(path + '-' + ClientPrefs.language))
-			pathSearch = path;
-		else
-			pathSearch = path + '-' + ClientPrefs.language;
-		if(FileSystem.exists(pathSearch))
+		if(FileSystem.exists(path))
 		{
-			return cast Json.parse(File.getContent(pathSearch));
+			return cast Json.parse(File.getContent(path));
 		}
 		#end
-		if (!FileSystem.exists(path + '-' + ClientPrefs.language))
-			pathSearch = path;
-		else
-			pathSearch = path + '-' + ClientPrefs.language;
-		return cast Json.parse(Assets.getText(pathSearch));
+		return cast Json.parse(Assets.getText(path));
 	}
 
 	public static function updateBoxOffsets(box:FlxSprite) { //Had to make it static because of the editors

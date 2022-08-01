@@ -1,0 +1,14 @@
+{	
+	"chance":70,
+	"antialiasing":true,
+	"pixelTheme":false,
+	"mainMenuChar":["bf","dad","gf","spooky","pico-player","mom","tankman-player"],
+	"platformPos":[640, 470],
+	"platformCharPos":[240, 70],
+	"offsetGF": "gf",
+	"offsetGFpos":[400, 130],
+	"offsetBF":"bf",
+	"offsetBFpos":[770, 100],
+	"offsetBPM":128,
+	"fontName":"vcr.ttf"
+}

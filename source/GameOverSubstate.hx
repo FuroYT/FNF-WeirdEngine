@@ -9,7 +9,16 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
+import flixel.util.FlxStringUtil;
+import editors.ChartingState;
 import haxe.Json;
+#if android
+import android.Hardware;
+#end
+#if desktop
+import Discord.DiscordClient;
+#end
+using StringTools;
 
 class GameOverSubstate extends MusicBeatSubstate
 {
@@ -17,21 +26,24 @@ class GameOverSubstate extends MusicBeatSubstate
 	var camFollow:FlxPoint;
 	var camFollowPos:FlxObject;
 	var updateCamera:Bool = false;
+	var playingDeathSound:Bool = false;
 
 	var stageSuffix:String = "";
 
-	public static var characterName:String = 'bf';
+	public static var characterName:String = 'bf-dead';
 	public static var deathSoundName:String = 'fnf_loss_sfx';
 	public static var loopSoundName:String = 'gameOver';
 	public static var endSoundName:String = 'gameOverEnd';
+	public static var vibrationTime:Int = 500;//milliseconds
 
 	public static var instance:GameOverSubstate;
 
 	public static function resetVariables() {
-		characterName = 'bf';
+		characterName = 'bf-dead';
 		deathSoundName = 'fnf_loss_sfx';
 		loopSoundName = 'gameOver';
 		endSoundName = 'gameOverEnd';
+		vibrationTime = 500;
 	}
 
 	override function create()
@@ -46,6 +58,8 @@ class GameOverSubstate extends MusicBeatSubstate
 	{
 		super();
 
+		PlayState.instance.callOnLuas('onCreateGameOver', []);
+
 		PlayState.instance.setOnLuas('inGameOver', true);
 
 		Conductor.songPosition = 0;
@@ -58,6 +72,13 @@ class GameOverSubstate extends MusicBeatSubstate
 		camFollow = new FlxPoint(boyfriend.getGraphicMidpoint().x, boyfriend.getGraphicMidpoint().y);
 
 		FlxG.sound.play(Paths.sound(deathSoundName));
+
+		#if android
+		if(ClientPrefs.vibration)
+		{
+			Hardware.vibrate(vibrationTime);
+		}
+		#end
 		Conductor.changeBPM(100);
 		// FlxG.camera.followLerp = 1;
 		// FlxG.camera.focusOn(FlxPoint.get(FlxG.width / 2, FlxG.height / 2));
@@ -66,11 +87,16 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		boyfriend.playAnim('firstDeath');
 
-		var exclude:Array<Int> = [];
-
 		camFollowPos = new FlxObject(0, 0, 1, 1);
 		camFollowPos.setPosition(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2));
 		add(camFollowPos);
+		
+		PlayState.instance.callOnLuas('onCreateGameOverPost', []);
+
+		#if android
+		addVirtualPad(NONE, A_B);
+		addPadCamera();
+		#end
 	}
 
 	var isFollowingAlready:Bool = false;
@@ -92,19 +118,29 @@ class GameOverSubstate extends MusicBeatSubstate
 		if (controls.BACK)
 		{
 			FlxG.sound.music.stop();
-			PlayState.deathCounter = 0;
-			PlayState.seenCutscene = false;
+			if (PlayState.chartingMode) {
+				openChartEditor();
+			}
+			else {
+				PauseSubState.checkCutScenes = false;
+				PlayState.deathCounter = 0;
+				PlayState.seenCutscene = false;
 
-			if (PlayState.isStoryMode)
-				MusicBeatState.switchState(new StoryMenuState());
-			else
-				MusicBeatState.switchState(new FreeplayState());
+                Paths.currentModSelectedDirectory = Paths.currentModDirectory;
+                Paths.currentModDirectory = ThemeLoader.themeMod;
+				if (PlayState.isStoryMode)
+					MusicBeatState.switchState(new StoryMenuState());
+				else
+					MusicBeatState.switchState(new FreeplayState());
 
-			var titleJSON = Json.parse(Paths.getTextFromFile('images/${TitleState.themefolder}gfDanceTitle.json'));
-			Conductor.changeBPM(titleJSON.bpm);
-			
-			FlxG.sound.playMusic(Paths.themeMusic('freakyMenu'));
-			PlayState.instance.callOnLuas('onGameOverConfirm', [false]);
+				var titleJSON = Json.parse(Paths.getTextFromFile('images/${ThemeLoader.themefolder}gfDanceTitle.json'));
+				Conductor.changeBPM(titleJSON.bpm);
+				
+				CharSelectState.resetChar();
+				
+				FlxG.sound.playMusic(Paths.themeMusic('freakyMenu'));
+				PlayState.instance.callOnLuas('onGameOverConfirm', [false]);
+			}
 		}
 
 		if (boyfriend.animation.curAnim.name == 'firstDeath')
@@ -116,9 +152,27 @@ class GameOverSubstate extends MusicBeatSubstate
 				isFollowingAlready = true;
 			}
 
-			if (boyfriend.animation.curAnim.finished)
+			if (boyfriend.animation.curAnim.finished && !playingDeathSound)
 			{
-				coolStartDeath();
+				if (PlayState.SONG.stage == 'tank')
+				{
+					playingDeathSound = true;
+					coolStartDeath(0.2);
+					
+					var exclude:Array<Int> = [];
+					//if(!ClientPrefs.cursing) exclude = [1, 3, 8, 13, 17, 21];
+
+					FlxG.sound.play(Paths.sound('jeffGameover/jeffGameover-' + FlxG.random.int(1, 25, exclude)), 1, false, null, true, function() {
+						if(!isEnding)
+						{
+							FlxG.sound.music.fadeIn(0.2, 1, 4);
+						}
+					});
+				}
+				else
+				{
+					coolStartDeath();
+				}
 				boyfriend.startedDeath = true;
 			}
 		}
@@ -142,6 +196,16 @@ class GameOverSubstate extends MusicBeatSubstate
 	function coolStartDeath(?volume:Float = 1):Void
 	{
 		FlxG.sound.playMusic(Paths.music(loopSoundName), volume);
+	}
+	
+	
+	function openChartEditor()
+	{
+		MusicBeatState.switchState(new ChartingState());
+
+		#if desktop
+		DiscordClient.changePresence("Chart Editor", null, null, true);
+		#end
 	}
 
 	function endBullshit():Void

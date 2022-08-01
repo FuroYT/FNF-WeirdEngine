@@ -43,7 +43,7 @@ class MasterEditorMenu extends MusicBeatState
 		DiscordClient.changePresence("Editors Main Menu", null);
 		#end
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.themeImage('menuDesat'));
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.scrollFactor.set();
 		bg.color = 0xFF353535;
 		add(bg);
@@ -68,6 +68,8 @@ class MasterEditorMenu extends MusicBeatState
 		directoryTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		directoryTxt.scrollFactor.set();
 		add(directoryTxt);
+
+		Paths.currentModDirectory = Paths.currentModSelectedDirectory;
 		
 		for (folder in Paths.getModDirectories())
 		{
@@ -81,6 +83,11 @@ class MasterEditorMenu extends MusicBeatState
 		changeSelection();
 
 		FlxG.mouse.visible = false;
+
+                #if android
+                addVirtualPad(FULL, A_B);
+                #end
+
 		super.create();
 	}
 
@@ -152,7 +159,7 @@ class MasterEditorMenu extends MusicBeatState
 
 	function changeSelection(change:Int = 0)
 	{
-		FlxG.sound.play(Paths.themeSound('scrollMenu'), 0.4);
+		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
 		curSelected += change;
 
@@ -165,7 +172,7 @@ class MasterEditorMenu extends MusicBeatState
 	#if MODS_ALLOWED
 	function changeDirectory(change:Int = 0)
 	{
-		FlxG.sound.play(Paths.themeSound('scrollMenu'), 0.4);
+		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
 		curDirectory += change;
 
@@ -179,7 +186,7 @@ class MasterEditorMenu extends MusicBeatState
 			directoryTxt.text = '< No Mod Directory Loaded >';
 		else
 		{
-			Paths.currentModDirectory = directories[curDirectory];
+			Paths.currentModSelectedDirectory = Paths.currentModDirectory = directories[curDirectory];
 			directoryTxt.text = '< Loaded Mod Directory: ' + Paths.currentModDirectory + ' >';
 		}
 		directoryTxt.text = directoryTxt.text.toUpperCase();

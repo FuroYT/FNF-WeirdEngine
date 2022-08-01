@@ -27,8 +27,10 @@ import flash.net.FileFilter;
 import haxe.Json;
 import DialogueBoxPsych;
 import lime.system.Clipboard;
+import lime.utils.Assets;
 #if sys
 import sys.io.File;
+import sys.FileSystem;
 #end
 
 using StringTools;
@@ -55,7 +57,8 @@ class DialogueEditorState extends MusicBeatState
 			text: DEFAULT_TEXT,
 			boxState: DEFAULT_BUBBLETYPE,
 			speed: 0.05,
-			sound: ''
+			sound: '',
+			voiceline: false
 		};
 
 		dialogueFile = {
@@ -99,6 +102,11 @@ class DialogueEditorState extends MusicBeatState
 		animText.scrollFactor.set();
 		add(animText);
 		changeText();
+
+                #if android
+                addVirtualPad(FULL, A_B_C);
+                #end
+
 		super.create();
 	}
 
@@ -108,7 +116,7 @@ class DialogueEditorState extends MusicBeatState
 			{name: 'Dialogue Line', label: 'Dialogue Line'},
 		];
 		UI_box = new FlxUITabMenu(null, tabs, true);
-		UI_box.resize(250, 210);
+		UI_box.resize(250, 260);
 		UI_box.x = FlxG.width - UI_box.width - 10;
 		UI_box.y = 10;
 		UI_box.scrollFactor.set();
@@ -120,13 +128,33 @@ class DialogueEditorState extends MusicBeatState
 	var characterInputText:FlxUIInputText;
 	var lineInputText:FlxUIInputText;
 	var angryCheckbox:FlxUICheckBox;
+	var voicelineCheckbox:FlxUICheckBox;
 	var speedStepper:FlxUINumericStepper;
 	var soundInputText:FlxUIInputText;
+	var langDropDown:FlxUIDropDownMenuCustom;
+	var lang:Array<Array<String>> = [];
 	function addDialogueLineUI() {
+		
+		var fullText:String = Assets.getText(Paths.txt('langList'));
+	
+		var firstArray:Array<String> = fullText.split('\n');
+	
+		var langList:Array<String> = [];
+		for (i in firstArray)
+		{
+			lang.push(i.split('--'));
+		}
+
+		for (i in 0...lang.length)
+		{	
+			langList.push((lang[i][1]));
+		}
+
 		var tab_group = new FlxUI(null, UI_box);
 		tab_group.name = "Dialogue Line";
 
 		characterInputText = new FlxUIInputText(10, 20, 80, DialogueCharacter.DEFAULT_CHARACTER, 8);
+		characterInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(characterInputText);
 
 		speedStepper = new FlxUINumericStepper(10, characterInputText.y + 40, 0.005, 0.05, 0, 0.5, 3);
@@ -137,19 +165,32 @@ class DialogueEditorState extends MusicBeatState
 			updateTextBox();
 			dialogueFile.dialogue[curSelected].boxState = (angryCheckbox.checked ? 'angry' : 'normal');
 		};
+		speedStepper = new FlxUINumericStepper(10, characterInputText.y + 40, 0.005, 0.05, 0, 0.5, 3);
+
+		voicelineCheckbox = new FlxUICheckBox(speedStepper.x + 120, characterInputText.y, null, null, "Voice acting", 200);
+		voicelineCheckbox.callback = function()
+		{
+			reloadText(speedStepper.value);
+		};
 
 		soundInputText = new FlxUIInputText(10, speedStepper.y + 40, 150, '', 8);
+		soundInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(soundInputText);
 		
 		lineInputText = new FlxUIInputText(10, soundInputText.y + 35, 200, DEFAULT_TEXT, 8);
+		lineInputText.focusGained = () -> FlxG.stage.window.textInputEnabled = true;
 		blockPressWhileTypingOn.push(lineInputText);
 
-		var loadButton:FlxButton = new FlxButton(20, lineInputText.y + 25, "Load Dialogue", function() {
+		langDropDown = new FlxUIDropDownMenuCustom(10, lineInputText.y + 35,
+			FlxUIDropDownMenuCustom.makeStrIdLabelArray(langList, true), null);
+		langDropDown.selectedLabel = lang[0][1];
+
+		var loadButton:FlxButton = new FlxButton(20, langDropDown.y + 35, "Load Dialogue", function() {
 			loadDialogue();
 		});
 		var saveButton:FlxButton = new FlxButton(loadButton.x + 120, loadButton.y, "Save Dialogue", function() {
 			saveDialogue();
-		});
+		});	
 
 		tab_group.add(new FlxText(10, speedStepper.y - 18, 0, 'Interval/Speed (ms):'));
 		tab_group.add(new FlxText(10, characterInputText.y - 18, 0, 'Character:'));
@@ -159,9 +200,11 @@ class DialogueEditorState extends MusicBeatState
 		tab_group.add(angryCheckbox);
 		tab_group.add(speedStepper);
 		tab_group.add(soundInputText);
+		tab_group.add(voicelineCheckbox);
 		tab_group.add(lineInputText);
 		tab_group.add(loadButton);
 		tab_group.add(saveButton);
+		tab_group.add(langDropDown);
 		UI_box.addGroup(tab_group);
 	}
 
@@ -172,7 +215,8 @@ class DialogueEditorState extends MusicBeatState
 			text: defaultLine.text,
 			boxState: defaultLine.boxState,
 			speed: defaultLine.speed,
-			sound: ''
+			sound: '',
+			voiceline: false
 		};
 		return copyLine;
 	}
@@ -218,7 +262,7 @@ class DialogueEditorState extends MusicBeatState
 		character.playAnim(); //Plays random animation
 		characterAnimSpeed();
 
-		if(character.animation.curAnim != null) {
+		if(character.animation.curAnim != null && character.jsonFile.animations != null) {
 			animText.text = 'Animation: ' + character.jsonFile.animations[curAnim].anim + ' (' + (curAnim + 1) +' / ' + character.jsonFile.animations.length + ') - Press W or S to scroll';
 		} else {
 			animText.text = 'ERROR! NO ANIMATIONS FOUND';
@@ -228,6 +272,8 @@ class DialogueEditorState extends MusicBeatState
 	private static var DEFAULT_TEXT:String = "coolswag";
 	private static var DEFAULT_SPEED:Float = 0.05;
 	private static var DEFAULT_BUBBLETYPE:String = "normal";
+	public var voicelineSound:FlxSound = new FlxSound();
+
 	function reloadText(speed:Float = 0.05) {
 		if(daText != null) {
 			daText.killTheTimer();
@@ -235,13 +281,42 @@ class DialogueEditorState extends MusicBeatState
 			remove(daText);
 			daText.destroy();
 		}
+		voicelineSound.stop();
 
 		if(Math.isNaN(speed) || speed < 0.001) speed = 0.0;
 
 		var textToType:String = lineInputText.text;
 		if(textToType == null || textToType.length < 1) textToType = ' ';
 	
-		Alphabet.setDialogueSound(soundInputText.text);
+		Alphabet.setDialogueSound(soundInputText.text, voicelineCheckbox.checked);
+		if (voicelineCheckbox.checked){
+			#if MODS_ALLOWED
+				if (FileSystem.exists(Paths.modsSounds('sounds','voicelines/${soundInputText.text}-${langDropDown.selectedLabel}')) || FileSystem.exists(Paths.getPath('voicelines/${soundInputText.text}-${langDropDown.selectedLabel}.${Paths.SOUND_EXT}', SOUND))) {
+					voicelineSound = new FlxSound().loadEmbedded(Paths.sound('voicelines/${soundInputText.text}-${langDropDown.selectedLabel}'));
+				}
+				else if (FileSystem.exists(Paths.modsSounds('sounds','voicelines/${soundInputText.text}')) || FileSystem.exists(Paths.getPath('voicelines/${soundInputText.text}.${Paths.SOUND_EXT}', SOUND))) {
+					voicelineSound = new FlxSound().loadEmbedded(Paths.sound('voicelines/${soundInputText.text}'));
+				}
+				else {
+					voicelineSound = new FlxSound();
+				}
+			#else
+				if (OpenFlAssets.exists(Paths.getPath('voicelines/${soundInputText.text}-${langDropDown.selectedLabel}.${Paths.SOUND_EXT}', SOUND))) {
+					voicelineSound = new FlxSound().loadEmbedded(Paths.sound('voicelines/${soundInputText.text}-${langDropDown.selectedLabel}'));
+				}
+				else if (OpenFlAssets.exists(Paths.getPath('voicelines/${soundInputText.text}.${Paths.SOUND_EXT}', SOUND))) {
+					voicelineSound = new FlxSound().loadEmbedded(Paths.sound('voicelines/${soundInputText.text}'));
+				}
+				else {
+					voicelineSound = new FlxSound();
+				}
+			#end
+		}
+		else {
+			voicelineSound = new FlxSound();
+		}
+		voicelineSound.play();
+
 		daText = new Alphabet(DialogueBoxPsych.DEFAULT_TEXT_X, DialogueBoxPsych.DEFAULT_TEXT_Y, textToType, false, true, speed, 0.7);
 		add(daText);
 
@@ -256,7 +331,7 @@ class DialogueEditorState extends MusicBeatState
 		// Updating Discord Rich Presence
 		var rpcText:String = lineInputText.text;
 		if(rpcText == null || rpcText.length < 1) rpcText = '(Empty)';
-		if(rpcText.length < 3) rpcText += '  '; //Fixes a bug on RPC that triggers an error when the text is too short
+		if(rpcText.length < 3) rpcText += '   '; //Fixes a bug on RPC that triggers an error when the text is too short
 		DiscordClient.changePresence("Dialogue Editor", rpcText);
 		#end
 	}
@@ -349,17 +424,19 @@ class DialogueEditorState extends MusicBeatState
 			FlxG.sound.muteKeys = TitleState.muteKeys;
 			FlxG.sound.volumeDownKeys = TitleState.volumeDownKeys;
 			FlxG.sound.volumeUpKeys = TitleState.volumeUpKeys;
-			if(FlxG.keys.justPressed.SPACE) {
+			if(FlxG.keys.justPressed.SPACE #if android || _virtualpad.buttonC.justPressed #end) {
 				reloadText(speedStepper.value);
 			}
-			if(FlxG.keys.justPressed.ESCAPE) {
+			if(FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end) {
+                Paths.currentModSelectedDirectory = Paths.currentModDirectory;
+                Paths.currentModDirectory = ThemeLoader.themeMod;
 				MusicBeatState.switchState(new editors.MasterEditorMenu());
-				FlxG.sound.playMusic(Paths.themeMusic('freakyMenu'), 1);
+				FlxG.sound.playMusic(Paths.music('freakyMenu'), 1);
 				transitioning = true;
 			}
 			var negaMult:Array<Int> = [1, -1];
-			var controlAnim:Array<Bool> = [FlxG.keys.justPressed.W, FlxG.keys.justPressed.S];
-			var controlText:Array<Bool> = [FlxG.keys.justPressed.D, FlxG.keys.justPressed.A];
+			var controlAnim:Array<Bool> = [FlxG.keys.justPressed.W #if android || _virtualpad.buttonUp.justPressed #end, FlxG.keys.justPressed.S #if android || _virtualpad.buttonDown.justPressed #end];
+			var controlText:Array<Bool> = [FlxG.keys.justPressed.D #if android || _virtualpad.buttonLeft.justPressed #end, FlxG.keys.justPressed.A #if android || _virtualpad.buttonRight.justPressed #end];
 			for (i in 0...controlAnim.length) {
 				if(controlAnim[i] && character.jsonFile.animations.length > 0) {
 					curAnim -= negaMult[i];
@@ -378,7 +455,7 @@ class DialogueEditorState extends MusicBeatState
 				}
 			}
 
-			if(FlxG.keys.justPressed.O) {
+			if(FlxG.keys.justPressed.O #if android || _virtualpad.buttonA.justPressed #end) {
 				dialogueFile.dialogue.remove(dialogueFile.dialogue[curSelected]);
 				if(dialogueFile.dialogue.length < 1) //You deleted everything, dumbo!
 				{
@@ -387,7 +464,7 @@ class DialogueEditorState extends MusicBeatState
 					];
 				}
 				changeText();
-			} else if(FlxG.keys.justPressed.P) {
+			} else if(FlxG.keys.justPressed.P #if android || _virtualpad.buttonB.justPressed #end) {
 				dialogueFile.dialogue.insert(curSelected + 1, copyDefaultLine());
 				changeText(1);
 			}
@@ -405,6 +482,9 @@ class DialogueEditorState extends MusicBeatState
 		lineInputText.text = curDialogue.text;
 		angryCheckbox.checked = (curDialogue.boxState == 'angry');
 		speedStepper.value = curDialogue.speed;
+
+		soundInputText.text = curDialogue.sound;
+		voicelineCheckbox.checked = curDialogue.voiceline;
 
 		curAnim = 0;
 		character.reloadCharacterJson(characterInputText.text);
@@ -521,11 +601,15 @@ class DialogueEditorState extends MusicBeatState
 		var data:String = Json.stringify(dialogueFile, "\t");
 		if (data.length > 0)
 		{
+                        #if android
+                        SUtil.saveContent("dialogue", ".json", data);
+                        #else
 			_file = new FileReference();
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 			_file.save(data, "dialogue.json");
+                        #end
 		}
 	}
 

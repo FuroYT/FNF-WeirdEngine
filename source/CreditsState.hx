@@ -53,7 +53,7 @@ class CreditsState extends MusicBeatState
 		add(grpOptions);
 
 		#if MODS_ALLOWED
-		var path:String = 'modsList.txt';
+		var path:String = SUtil.getPath() + 'modsList.txt';
 		if(FileSystem.exists(path))
 		{
 			var leMods:Array<String> = CoolUtil.coolTextFile(path);
@@ -80,47 +80,40 @@ class CreditsState extends MusicBeatState
 		}
 		#end
 
-		var tomyIcon:String;
-		if (FlxG.random.int(0,2) == 1)
-			tomyIcon ='tomy-mc';
-		else
-			tomyIcon ='tomy-bf';
-
 		var pisspoop:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
 			['Weird Engine'],
-			['TomyGamy', 			tomyIcon,			'Main programmer of this Weird thing (Language, voice separation, ect...)', 							'https://twitter.com/YTTomyGamy', 	'DBC400'],
-			['The Reda',			'reda',				'Logo and sprites',											'https://www.instagram.com/the_reda_show',	'F0DE93'],
-			['Jack-thander', 		'jack-t',			'Easter egg Remixes', 										'https://www.youtube.com/channel/UCgf50V46epZNSOFsmyh4G2w', 					'0077FF'],
+			['TomyGamy', 			'tomy',				'Main programmer of this Weird thing (Language, voice separation, etc...)', 			'https://linktr.ee/tomygamy', 					'DBC400'],
+			['The Reda',			'reda',				'Logo and sprites',												'https://www.instagram.com/the_reda_show',								'F0DE93'],
 			[''],
 			['Weird Engine Translation'],
-			['TomyGamy', 			tomyIcon,			'French translation', 										'https://twitter.com/YTTomyGamy', 			'DBC400'],
-			['PalkVerse', 			'palk',				'German translation', 										'https://www.youtube.com/channel/UCd8ICYNk5m9aaLcBzyedIuQ?app=desktop', 		'8a94ff'],
-			['Efficency', 			'eff',				'Danish translation', 										'', 										'FFFFFF'],
-			['vorosX123', 			'vorox',			'Hungarian translation', 									'https://twitter.com/voros_x', 				'999999'],
+			['TomyGamy', 			'tomy',				'French translation', 											'https://linktr.ee/tomygamy', 			'DBC400'],
+			['LORD-anton', 			'anton',			'Swedish translation', 											'https://www.youtube.com/channel/UCBp7fDRy0246nmmmV2eWa0Q', 			'8AD47E'],
 			[''],
 			['Extra Keys'],
-			['tposejank', 			'unknown',			'Main programmer of ~~the keys~~', 							'https://twitter.com/tpose_jank', 			'FFFFFF'],
+			['tposejank', 			'unknown',			'Main programmer of ~~the keys~~', 								'https://twitter.com/tpose_jank', 		'FFFFFF'],
 			[''],
 			['Psych Engine Team'],
-			['Shadow Mario',		'shadowmario',		'Main Programmer of Psych Engine',							'https://twitter.com/Shadow_Mario_',		'444444'],
-			['RiverOaken',			'riveroaken',		'Main Artist/Animator of Psych Engine',						'https://twitter.com/RiverOaken',			'C30085'],
-			['shubs',				'shubs',			'Additional Programmer of Psych Engine',					'https://twitter.com/yoshubs',				'279ADC'],
+			['Shadow Mario',		'shadowmario',		'Main Programmer of Psych Engine',								'https://twitter.com/Shadow_Mario_',	'444444'],
+			['RiverOaken',			'river',			'Main Artist/Animator of Psych Engine',							'https://twitter.com/RiverOaken',		'B42F71'],
+			['shubs',				'shubs',			'Additional Programmer of Psych Engine',						'https://twitter.com/yoshubs',			'5E99DF'],
 			[''],
 			['Former Engine Members'],
-			['bb-panzu',			'bb-panzu',			'Ex-Programmer of Psych Engine',							'https://twitter.com/bbsub3',				'389A58'],
+			['bb-panzu',			'bb',				'Ex-Programmer of Psych Engine',								'https://twitter.com/bbsub3',			'3E813A'],
 			[''],
 			['Engine Contributors'],
-			['iFlicky',				'iflicky',			'Composer of Psync and Tea Time\nMade the Dialogue Sounds',	'https://twitter.com/flicky_i',				'AA32FE'],
-			['SqirraRNG',			'gedehari',			'Chart Editor\'s Sound Waveform base',						'https://twitter.com/gedehari',				'FF9300'],
-			['PolybiusProxy',		'polybiusproxy',	'.MP4 Video Loader Extension',								'https://twitter.com/polybiusproxy',		'FFEAA6'],
-			['Keoiki',				'keoiki',			'Note Splash Animations',									'https://twitter.com/Keoiki_',				'FFFFFF'],
-			['Smokey',				'smokey',			'Spritemap Texture Support',								'https://twitter.com/Smokey_5_',			'4D5DBD'],
+			['iFlicky',				'flicky',			'Composer of Psync and Tea Time\nMade the Dialogue Sounds',		'https://twitter.com/flicky_i',			'9E29CF'],
+			['SqirraRNG',			'sqirra',			'Crash Handler and Base code for\nChart Editor\'s Waveform',	'https://twitter.com/gedehari',			'E1843A'],
+			['PolybiusProxy',		'proxy',			'.MP4 Video Loader Library (hxCodec)',							'https://twitter.com/polybiusproxy',	'DCD294'],
+			['KadeDev',				'kade',				'Fixed some cool stuff on Chart Editor\nand other PRs',			'https://twitter.com/kade0912',			'64A250'],
+			['Keoiki',				'keoiki',			'Note Splash Animations',										'https://twitter.com/Keoiki_',			'D2D2D2'],
+			['Nebula the Zorua',	'nebula',			'LUA JIT Fork and some Lua reworks',							'https://twitter.com/Nebula_Zorua',		'7D40B2'],
+			['Smokey',				'smokey',			'Sprite Atlas Support',											'https://twitter.com/Smokey_5_',		'483D92'],
 			[''],
 			["Funkin' Crew"],
-			['ninjamuffin99',		'ninjamuffin99',	"Programmer of Friday Night Funkin'",						'https://twitter.com/ninja_muffin99',		'F73838'],
-			['PhantomArcade',		'phantomarcade',	"Animator of Friday Night Funkin'",							'https://twitter.com/PhantomArcade3K',		'FFBB1B'],
-			['evilsk8r',			'evilsk8r',			"Artist of Friday Night Funkin'",							'https://twitter.com/evilsk8r',				'53E52C'],
-			['kawaisprite',			'kawaisprite',		"Composer of Friday Night Funkin'",							'https://twitter.com/kawaisprite',			'6475F3']
+			['ninjamuffin99',		'ninjamuffin99',	"Programmer of Friday Night Funkin'",							'https://twitter.com/ninja_muffin99',	'CF2D2D'],
+			['PhantomArcade',		'phantomarcade',	"Animator of Friday Night Funkin'",								'https://twitter.com/PhantomArcade3K',	'FADC45'],
+			['evilsk8r',			'evilsk8r',			"Artist of Friday Night Funkin'",								'https://twitter.com/evilsk8r',			'5ABD4B'],
+			['kawaisprite',			'kawaisprite',		"Composer of Friday Night Funkin'",								'https://twitter.com/kawaisprite',		'378FC7']
 		];
 		
 		for(i in pisspoop){
@@ -170,7 +163,7 @@ class CreditsState extends MusicBeatState
 		add(descBox);
 
 		descText = new FlxText(50, FlxG.height + offsetThing - 25, 1180, "", 32);
-		descText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER/*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
+		descText.setFormat(Paths.font(ThemeLoader.fontName), 32, FlxColor.WHITE, CENTER/*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
 		descText.scrollFactor.set();
 		//descText.borderSize = 2.4;
 		descBox.sprTracker = descText;
@@ -179,6 +172,11 @@ class CreditsState extends MusicBeatState
 		bg.color = getCurrentBGColor();
 		intendedColor = bg.color;
 		changeSelection();
+
+		#if android
+		addVirtualPad(UP_DOWN, A_B);
+		#end
+
 		super.create();
 	}
 

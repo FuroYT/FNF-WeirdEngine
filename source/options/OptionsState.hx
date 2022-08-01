@@ -23,6 +23,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
+import flixel.effects.FlxFlicker;
 import Controls;
 
 using StringTools;
@@ -40,6 +41,8 @@ class OptionsState extends MusicBeatState
 	];
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 
+	public static var inGame:Bool = false;
+
 	private static var curSelected:Int = 0;
 	public static var menuBG:FlxSprite;
 
@@ -48,20 +51,88 @@ class OptionsState extends MusicBeatState
 		switch (label)
 		{
 			case 'Language':
+				//openSubState(new options.LanguageSubState());
+				#if android
+				removeVirtualPad();
+				MusicBeatState.switchState(new options.LanguageState());
+				#else
 				LoadingState.loadAndSwitchState(new options.LanguageState());
+				#end
 			case 'Note Colors':
+				#if android
+				removeVirtualPad();
+				#end
 				openSubState(new options.NotesSubState());
 			case 'Controls':
+				#if android
+				removeVirtualPad();
+				#end
 				openSubState(new options.ControlsSubState());
 			case 'Graphics':
+				#if android
+				removeVirtualPad();
+				#end
 				openSubState(new options.GraphicsSettingsSubState());
 			case 'Visuals and UI':
+				#if android
+				removeVirtualPad();
+				#end
 				openSubState(new options.VisualsUISubState());
 			case 'Gameplay':
+				#if android
+				removeVirtualPad();
+				#end
 				openSubState(new options.GameplaySettingsSubState());
 			case 'Adjust Delay and Combo':
-				LoadingState.loadAndSwitchState(new options.NoteOffsetState());
+				LoadingState.loadAndSwitchState(new options.NoteOffsetState(), false);
 		}
+	}
+
+	function openOption(label:String)
+	{
+		if (label == 'Language' || label == 'Adjust Delay and Combo')
+		{
+			selectedSomethin = true;
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+
+			grpOptions.forEach(function(spr:FlxSprite)
+			{
+				if (curSelected != spr.ID)
+				{
+					FlxTween.tween(spr, {alpha: 0}, 0.4, {
+						ease: FlxEase.expoOut,
+						onComplete: function(twn:FlxTween)
+						{
+							spr.kill();
+						}
+					});
+				}
+				else
+				{
+					if (label == 'Adjust Delay and Combo')
+						FlxG.sound.music.fadeOut();
+					
+					FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
+					{
+						switch (label)
+						{
+							case 'Language':
+								//openSubState(new options.LanguageSubState());
+								#if android
+								removeVirtualPad();
+								MusicBeatState.switchState(new options.LanguageState());
+								#else
+								LoadingState.loadAndSwitchState(new options.LanguageState());
+								#end
+							case 'Adjust Delay and Combo':
+								LoadingState.loadAndSwitchState(new options.NoteOffsetState(), false);
+						}
+					});
+				}
+			});
+		}
+		else
+			openSelectedSubstate(label);
 	}
 
 	var selectorLeft:Alphabet;
@@ -78,7 +149,10 @@ class OptionsState extends MusicBeatState
 		bg.updateHitbox();
 
 		bg.screenCenter();
-		bg.antialiasing = ClientPrefs.globalAntialiasing;
+		if (ThemeLoader.antialiasing)
+			bg.antialiasing = ClientPrefs.globalAntialiasing;
+		else
+			bg.antialiasing = false;
 		add(bg);
 
 		grpOptions = new FlxTypedGroup<Alphabet>();
@@ -89,6 +163,7 @@ class OptionsState extends MusicBeatState
 			var optionText:Alphabet = new Alphabet(0, 0, options[i][1], true, false);
 			optionText.screenCenter();
 			optionText.y += (100 * (i - (options.length / 2))) + 50;
+			optionText.ID = i;
 			grpOptions.add(optionText);
 		}
 
@@ -100,6 +175,10 @@ class OptionsState extends MusicBeatState
 		changeSelection();
 		ClientPrefs.saveSettings();
 
+		#if android
+		addVirtualPad(UP_DOWN, A_B);
+		#end
+
 		super.create();
 	}
 
@@ -109,28 +188,39 @@ class OptionsState extends MusicBeatState
 		ClientPrefs.saveSettings();
 	}
 
+	private var selectedSomethin:Bool = false;
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
 
-		if (controls.UI_UP_P)
+		if (!selectedSomethin)
 		{
-			changeSelection(-1);
-		}
-		if (controls.UI_DOWN_P)
-		{
-			changeSelection(1);
-		}
+			if (controls.UI_UP_P)
+			{
+				changeSelection(-1);
+			}
+			if (controls.UI_DOWN_P)
+			{
+				changeSelection(1);
+			}
 
-		if (controls.BACK)
-		{
-			FlxG.sound.play(Paths.themeSound('cancelMenu'));
-			MusicBeatState.switchState(new MainMenuState());
-		}
+			if (controls.BACK)
+			{
+				FlxG.sound.play(Paths.themeSound('cancelMenu'));
+				if (inGame) {
+					StageData.loadDirectory(PlayState.SONG);
+					LoadingState.loadAndSwitchState(new PlayState(), true);
+					inGame = false;
+				}
+				else
+					MusicBeatState.switchState(new MainMenuState());
+			}
 
-		if (controls.ACCEPT)
-		{
-			openSelectedSubstate(options[curSelected][0]);
+			if (controls.ACCEPT)
+			{
+				openOption(options[curSelected][0]);
+			}
 		}
 	}
 
