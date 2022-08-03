@@ -13,11 +13,6 @@ import flixel.util.FlxColor;
 import flixel.util.FlxGradient;
 import flixel.FlxState;
 import flixel.FlxBasic;
-#if android
-import flixel.input.actions.FlxActionInput;
-import android.FlxHitbox;
-import android.FlxVirtualPad;
-#end
 
 class MusicBeatState extends FlxUIState
 {
@@ -33,91 +28,6 @@ class MusicBeatState extends FlxUIState
 
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
-
-	#if android
-	var _virtualpad:FlxVirtualPad;
-	var _hitbox:FlxHitbox;
-	var trackedinputsUI:Array<FlxActionInput> = [];
-	var trackedinputsNOTES:Array<FlxActionInput> = [];
-	#end
-	
-	#if android
-	public function addVirtualPad(?DPad:FlxDPadMode, ?Action:FlxActionMode) {
-		_virtualpad = new FlxVirtualPad(DPad, Action, 0.75, ClientPrefs.globalAntialiasing);
-		add(_virtualpad);
-		controls.setVirtualPadUI(_virtualpad, DPad, Action);
-		trackedinputsUI = controls.trackedinputsUI;
-		controls.trackedinputsUI = [];
-	}
-	#end
-
-	#if android
-	public function removeVirtualPad() {
-		controls.removeFlxInput(trackedinputsUI);
-		remove(_virtualpad);
-	}
-	#end
-
-	#if android
-	public function addHitbox(mania:Int) {               
-		var curhitbox:HitboxType = FOUR;
-
-		switch (mania){
-			case 0:
-				curhitbox = ONE;
-			case 1:
-				curhitbox = TWO;
-			case 2:
-				curhitbox = THREE;					
-			case 3:
-				curhitbox = FOUR;	
-			case 4:
-				curhitbox = FIVE;
-			case 5:
-				curhitbox = SIX;
-			case 6:
-				curhitbox = SEVEN;
-			case 7:
-				curhitbox = EIGHT;
-			case 8:
-				curhitbox = NINE;
-			case 9:
-				curhitbox = TEN;
-		        case 10:
-				curhitbox = ELEVEN;									
-			default:
-				curhitbox = FOUR;
-		}
-
-		_hitbox = new FlxHitbox(curhitbox, 0.75, ClientPrefs.globalAntialiasing);
-
-		var camcontrol = new flixel.FlxCamera();
-		FlxG.cameras.add(camcontrol);
-		camcontrol.bgColor.alpha = 0;
-		_hitbox.cameras = [camcontrol];
-
-		_hitbox.visible = false;
-		add(_hitbox);
-	}
-	#end
-
-	#if android
-        public function addPadCamera() {
-		var camcontrol = new flixel.FlxCamera();
-		FlxG.cameras.add(camcontrol);
-		camcontrol.bgColor.alpha = 0;
-		_virtualpad.cameras = [camcontrol];
-	}
-	#end
-	
-	override function destroy() {
-		#if android
-		controls.removeFlxInput(trackedinputsUI);
-		controls.removeFlxInput(trackedinputsNOTES);	
-		#end	
-		
-		super.destroy();
-	}
 
 	override function create()
 	{

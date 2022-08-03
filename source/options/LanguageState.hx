@@ -157,10 +157,6 @@ class LanguageState extends MusicBeatState
 		if (FlxG.save.data.flashing == null)
 			noFlashing = true;
 
-		#if android
-		addVirtualPad(UP_DOWN, A_B);
-		#end
-
 		super.create();
 	}
 
@@ -225,9 +221,6 @@ class LanguageState extends MusicBeatState
 					FlxFlicker.flicker(iconArray[spr.ID], 1, 0.06, false, false, null);
 					FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
 					{
-						#if android
-						removeVirtualPad();
-						#end
 						if (firstLaunch) {
 							firstLaunch = false;
 							if (noFlashing){

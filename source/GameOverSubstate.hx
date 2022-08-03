@@ -12,9 +12,6 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxStringUtil;
 import editors.ChartingState;
 import haxe.Json;
-#if android
-import android.Hardware;
-#end
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -34,7 +31,6 @@ class GameOverSubstate extends MusicBeatSubstate
 	public static var deathSoundName:String = 'fnf_loss_sfx';
 	public static var loopSoundName:String = 'gameOver';
 	public static var endSoundName:String = 'gameOverEnd';
-	public static var vibrationTime:Int = 500;//milliseconds
 
 	public static var instance:GameOverSubstate;
 
@@ -43,7 +39,6 @@ class GameOverSubstate extends MusicBeatSubstate
 		deathSoundName = 'fnf_loss_sfx';
 		loopSoundName = 'gameOver';
 		endSoundName = 'gameOverEnd';
-		vibrationTime = 500;
 	}
 
 	override function create()
@@ -73,12 +68,6 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		FlxG.sound.play(Paths.sound(deathSoundName));
 
-		#if android
-		if(ClientPrefs.vibration)
-		{
-			Hardware.vibrate(vibrationTime);
-		}
-		#end
 		Conductor.changeBPM(100);
 		// FlxG.camera.followLerp = 1;
 		// FlxG.camera.focusOn(FlxPoint.get(FlxG.width / 2, FlxG.height / 2));
@@ -92,11 +81,6 @@ class GameOverSubstate extends MusicBeatSubstate
 		add(camFollowPos);
 		
 		PlayState.instance.callOnLuas('onCreateGameOverPost', []);
-
-		#if android
-		addVirtualPad(NONE, A_B);
-		addPadCamera();
-		#end
 	}
 
 	var isFollowingAlready:Bool = false;

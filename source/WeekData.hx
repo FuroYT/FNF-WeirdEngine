@@ -95,7 +95,7 @@ class WeekData {
 		weeksLoaded.clear();
 		#if MODS_ALLOWED
 		var disabledMods:Array<String> = [];
-		var modsListPath:String = SUtil.getPath() + 'modsList.txt';
+		var modsListPath:String = 'modsList.txt';
 		var directories:Array<String> = [Paths.mods(), Paths.getPreloadPath()];
 		var originalLength:Int = directories.length;
 		if(FileSystem.exists(modsListPath))
@@ -252,7 +252,7 @@ class WeekData {
 		Paths.currentModDirectory = '';
 		
 		#if MODS_ALLOWED
-		if (FileSystem.exists(SUtil.getPath() + "modsList.txt"))
+		if (FileSystem.exists("modsList.txt"))
 		{
 			var list:Array<String> = CoolUtil.listFromString(File.getContent("modsList.txt"));
 			var foundTheTop = false;

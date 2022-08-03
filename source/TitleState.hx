@@ -93,10 +93,6 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
-		#if android
-		FlxG.android.preventDefaultKeys = [BACK];
-		#end
-		
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 		
@@ -434,16 +430,16 @@ class TitleState extends MusicBeatState
 
 		titleText = new FlxSprite(titleJSON.startx, titleJSON.starty);
 		#if (desktop && MODS_ALLOWED)
-		var path = SUtil.getPath() + "mods/" + Paths.currentModDirectory + "/images/titleEnter.png";
+		var path = "mods/" + Paths.currentModDirectory + "/images/titleEnter.png";
 		// trace(path, FileSystem.exists(path));
 		if (!FileSystem.exists(path))
 		{
-			path = SUtil.getPath() + "mods/images/titleEnter.png";
+			path = "mods/images/titleEnter.png";
 		}
 		// trace(path, FileSystem.exists(path));
 		if (!FileSystem.exists(path))
 		{
-			path = SUtil.getPath() + "assets/images/titleEnter.png";
+			path = "assets/images/titleEnter.png";
 		}
 		// trace(path, FileSystem.exists(path));
 		titleText.frames = FlxAtlasFrames.fromSparrow(BitmapData.fromFile(path), File.getContent(StringTools.replace(path, ".png", ".xml")));

@@ -468,7 +468,7 @@ class WeekEditorState extends MusicBeatState
 			FlxG.sound.muteKeys = TitleState.muteKeys;
 			FlxG.sound.volumeDownKeys = TitleState.volumeDownKeys;
 			FlxG.sound.volumeUpKeys = TitleState.volumeUpKeys;
-			if(FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end) {
+			if(FlxG.keys.justPressed.ESCAPE) {
 				Paths.currentModSelectedDirectory = Paths.currentModDirectory;
 				Paths.currentModDirectory = ThemeLoader.themeMod;
 				MusicBeatState.switchState(new editors.MasterEditorMenu());
@@ -562,15 +562,11 @@ class WeekEditorState extends MusicBeatState
 		var data:String = Json.stringify(weekFile, "\t");
 		if (data.length > 0)
 		{
-                        #if android
-                        SUtil.saveContent(weekFileName, ".json", data);
-                        #else
 			_file = new FileReference();
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 			_file.save(data, weekFileName + ".json");
-                        #end
 		}
 	}
 	
@@ -661,10 +657,6 @@ class WeekEditorFreeplayState extends MusicBeatState
 
 		addEditorBox();
 		changeSelection();
-
-                #if android
-                addVirtualPad(UP_DOWN, NONE);
-                #end
 
 		super.create();
 	}
@@ -862,7 +854,7 @@ class WeekEditorFreeplayState extends MusicBeatState
 			FlxG.sound.muteKeys = TitleState.muteKeys;
 			FlxG.sound.volumeDownKeys = TitleState.volumeDownKeys;
 			FlxG.sound.volumeUpKeys = TitleState.volumeUpKeys;
-			if(FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end) {
+			if(FlxG.keys.justPressed.ESCAPE) {
 				Paths.currentModSelectedDirectory = Paths.currentModDirectory;
 				Paths.currentModDirectory = ThemeLoader.themeMod;
 				MusicBeatState.switchState(new editors.MasterEditorMenu());

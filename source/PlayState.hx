@@ -1065,7 +1065,7 @@ class PlayState extends MusicBeatState
 			file = Paths.json(songName + '/dialogue');
 		if (OpenFlAssets.exists(file))
 		{
-			dialogueJson = DialogueBoxPsych.parseDialogue(SUtil.getPath() + file);
+			dialogueJson = DialogueBoxPsych.parseDialogue(file);
 		}
 
 		var file:String = Paths.txt(songName + '/' + songName + 'Dialogue-' + ClientPrefs.language); // Checks for vanilla/Senpai dialogue and language
@@ -1073,7 +1073,7 @@ class PlayState extends MusicBeatState
 			file = Paths.txt(songName + '/' + songName + 'Dialogue'); // Checks for vanilla/Senpai dialogue and language if language isn't supported
 		if (OpenFlAssets.exists(file))
 		{
-			dialogue = CoolUtil.coolTextFile(SUtil.getPath() + file);
+			dialogue = CoolUtil.coolTextFile(file);
 		}
 		var doof:DialogueBox = new DialogueBox(false, dialogue);
 		// doof.x += 70;
@@ -1304,13 +1304,6 @@ class PlayState extends MusicBeatState
 		timeBarBG.cameras = [camHUD];
 		timeTxt.cameras = [camHUD];
 		doof.cameras = [camHUD];
-
-		if(!ClientPrefs.keyboardMode)
-		{
-            #if android
-			addHitbox(mania);
-            #end
-		}
 
 		// if (SONG.song == 'South')
 		// FlxG.camera.alpha = 0.7;
@@ -2239,12 +2232,6 @@ class PlayState extends MusicBeatState
 		var ret:Dynamic = callOnLuas('onStartCountdown', [], false);
 		if (ret != FunkinLua.Function_Stop)
 		{
-			if(!ClientPrefs.keyboardMode)
-			{
-				#if android
-				_hitbox.visible = true;
-				#end
-			}
 			if (skipCountdown || startOnTime > 0)
 				skipArrowStartTween = true;
 
@@ -2654,7 +2641,7 @@ class PlayState extends MusicBeatState
 		var songName:String = Paths.formatToSongPath(SONG.song);
 		var file:String = Paths.json(songName + '/events');
 		#if MODS_ALLOWED
-		if (FileSystem.exists(Paths.modsJson(songName + '/events')) || FileSystem.exists(SUtil.getPath() + file))
+		if (FileSystem.exists(Paths.modsJson(songName + '/events')) || FileSystem.exists(file))
 		#else
 		if (OpenFlAssets.exists(file))
 		#end
@@ -3033,15 +3020,6 @@ class PlayState extends MusicBeatState
 
 		mania = newValue;
 
-		if(!ClientPrefs.keyboardMode)
-		{
-			#if android
-			remove(_hitbox);
-			addHitbox(mania);
-			_hitbox.visible = true;
-			#end
-		}
-
 		playerStrums.clear();
 		opponentStrums.clear();
 		strumLineNotes.clear();
@@ -3397,7 +3375,7 @@ class PlayState extends MusicBeatState
 			botplayTxt.alpha = 1 - Math.sin((Math.PI * botplaySine) / 180);
 		}
 
-		if (controls.PAUSE #if android || FlxG.android.justReleased.BACK #end && startedCountdown && canPause)
+		if (controls.PAUSE && startedCountdown && canPause)
 		{
 			var ret:Dynamic = callOnLuas('onPause', [], false);
 			openPauseMenu();
@@ -4452,13 +4430,6 @@ class PlayState extends MusicBeatState
 				return;
 			}
 		}
-		
-		if(!ClientPrefs.keyboardMode)
-		{
-			#if android
-			_hitbox.visible = false;
-			#end
-		}
 
 		timeBarBG.visible = false;
 		timeBar.visible = false;
@@ -5031,40 +5002,8 @@ class PlayState extends MusicBeatState
 		return false;
 	}
 
-	#if android
-	private function hitboxKeysArePressed():Bool
-	{
-			if (_hitbox.array[mania].pressed) 
-				{
-			return true;
-		}
-		return false;
-	}
-
-	private function hitboxDataKeyIsPressed(data:Int):Bool
-	{
-		if (_hitbox.array[data].pressed) 
-				{
-						return true;
-				}
-		return false;
-	}
-	#end
-
-
 	private function keyShit():Void
 	{
-			if(!ClientPrefs.keyboardMode)
-		{
-				#if android
-				for (i in 0..._hitbox.array.length) {
-					if (_hitbox.array[i].justPressed)
-					{
-						onKeyPress(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, -1, keysArray[mania][i][0]));
-					}
-				}
-				#end
-		}
 
 		// FlxG.watch.addQuick('asdfa', upP);
 		if (startedCountdown && !boyfriend.stunned && generatedMusic)
@@ -5072,78 +5011,29 @@ class PlayState extends MusicBeatState
 			// rewritten inputs???
 			notes.forEachAlive(function(daNote:Note)
 			{
-							if(!ClientPrefs.keyboardMode)
-						{
-										#if android
-						// hold note functions
-						if (daNote.isSustainNote && hitboxDataKeyIsPressed(daNote.noteData)
-						&& daNote.canBeHit && daNote.mustPress && !daNote.tooLate 
-						&& !daNote.wasGoodHit) {
-							goodNoteHit(daNote);
-						}
-										#end
-								}
-								else
-								{
-						// hold note functions
-						if (daNote.isSustainNote && dataKeyIsPressed(daNote.noteData)
-						&& daNote.canBeHit && daNote.mustPress && !daNote.tooLate 
-						&& !daNote.wasGoodHit) {
-							goodNoteHit(daNote);
-						}
-								}
+				// hold note functions
+				if (daNote.isSustainNote && dataKeyIsPressed(daNote.noteData)
+				&& daNote.canBeHit && daNote.mustPress && !daNote.tooLate 
+				&& !daNote.wasGoodHit) {
+					goodNoteHit(daNote);
+				}
 			});
 
-					if(!ClientPrefs.keyboardMode)
-				{
-								#if android
-					if (hitboxKeysArePressed() && !endingSong) {
-						#if ACHIEVEMENTS_ALLOWED
-						var achieve:String = checkForAchievement(['oversinging']);
-						if (achieve != null) {
-							startAchievement(achieve);
-						}
-						#end
-					}
-					else if (boyfriend.holdTimer > Conductor.stepCrochet * 0.0011 * boyfriend.singDuration && boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
-					{
-						if(boyfriend.animAdaptedLoop.exists('idle' + boyfriend.idleSuffix))
-							bfLoopSync = false;
-						else
-							boyfriend.dance();
-					}
-								#end
-						}
-						else
-						{
-							if (keysArePressed() && !endingSong) {
-								#if ACHIEVEMENTS_ALLOWED
-								var achieve:String = checkForAchievement(['oversinging']);
-								if (achieve != null) {
-									startAchievement(achieve);
-								}
-								#end
-							}
-							else if (boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration && boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
-							{
-								if(boyfriend.animAdaptedLoop.exists('idle' + boyfriend.idleSuffix))
-									bfLoopSync = false;
-								else
-									boyfriend.dance();
-							}
-						}
-		}
-
-			if(!ClientPrefs.keyboardMode)
-		{
-				#if android
-				for (i in 0..._hitbox.array.length) {
-					if (_hitbox.array[i].justReleased)
-					{
-						onKeyRelease(new KeyboardEvent(KeyboardEvent.KEY_UP, true, true, -1, keysArray[mania][i][0]));
-					}
+			if (keysArePressed() && !endingSong) {
+				#if ACHIEVEMENTS_ALLOWED
+				var achieve:String = checkForAchievement(['oversinging']);
+				if (achieve != null) {
+					startAchievement(achieve);
 				}
 				#end
+			}
+			else if (boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration && boyfriend.animation.curAnim.name.startsWith('sing') && !boyfriend.animation.curAnim.name.endsWith('miss'))
+			{
+				if(boyfriend.animAdaptedLoop.exists('idle' + boyfriend.idleSuffix))
+					bfLoopSync = false;
+				else
+					boyfriend.dance();
+			}
 		}
 	}
 

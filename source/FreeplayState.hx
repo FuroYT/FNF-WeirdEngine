@@ -222,10 +222,6 @@ class FreeplayState extends MusicBeatState
 		
 		var controlsInfo:Array<String> = [Language.controlSpace.toUpperCase(), 'CTRL', Language.reset.toUpperCase()];
 
-		#if android
-		controlsInfo = ['X', 'C', 'Y'];
-		#end
-
 		var leText:String = #if PRELOAD_ALL StringTools.replace(Language.freeplayInfo1, '@[control]', controlsInfo[0]) + '\n' + #end StringTools.replace(Language.freeplayInfo2, '@[control]', controlsInfo[1]) + '\n' + StringTools.replace(Language.freeplayInfo3, '@[control]', controlsInfo[2]);
 		var size:Int = 18;
 		
@@ -242,10 +238,6 @@ class FreeplayState extends MusicBeatState
 		missingFileText.alpha = 0;
 		missingFileText.x = Std.int(FlxG.width - missingFileText.width - 30);
 		add(missingFileText);
-
-		#if android
-		addVirtualPad(FULL, A_B_C_X_Y);
-		#end
 
 		super.create();
 	}
@@ -332,8 +324,8 @@ class FreeplayState extends MusicBeatState
 		var upP = controls.UI_UP_P;
 		var downP = controls.UI_DOWN_P;
 		var accepted = controls.ACCEPT;
-		var space = FlxG.keys.justPressed.SPACE #if android || _virtualpad.buttonX.justPressed #end;
-		var ctrl = FlxG.keys.justPressed.CONTROL #if android || _virtualpad.buttonC.justPressed #end;
+		var space = FlxG.keys.justPressed.SPACE;
+		var ctrl = FlxG.keys.justPressed.CONTROL;
 
 		var shiftMult:Int = 1;
 		if (FlxG.keys.pressed.SHIFT)
@@ -401,9 +393,6 @@ class FreeplayState extends MusicBeatState
 
 		if (ctrl)
 		{
-			#if android
-			removeVirtualPad();
-			#end
 			persistentUpdate = false;
 			openSubState(new GameplayChangersSubstate());
 		}
@@ -519,11 +508,8 @@ class FreeplayState extends MusicBeatState
 				destroyFreeplayVocals();
 			}
 		}
-		else if(controls.RESET #if android || _virtualpad.buttonY.justPressed #end)
+		else if(controls.RESET)
 		{
-			#if android
-			removeVirtualPad();
-			#end
 			persistentUpdate = false;
 			openSubState(new ResetScoreSubState(songs[curSelected].songName, curDifficulty, songs[curSelected].songCharacter));
 			FlxG.sound.play(Paths.themeSound('scrollMenu'));

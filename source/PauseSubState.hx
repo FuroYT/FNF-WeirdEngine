@@ -49,7 +49,7 @@ class PauseSubState extends MusicBeatSubstate
 		else
 			songFolder = '';*/
 
-		menuItemsOG = [['Resume', Language.resume], ['Restart Song', Language.restart], ['Options', Language.pauseOption] #if android , ['Chart Editor', Language.chartEdit] #end, ['Exit to menu', Language.exit2Menu]];
+		menuItemsOG = [['Resume', Language.resume], ['Restart Song', Language.restart], ['Options', Language.pauseOption], ['Exit to menu', Language.exit2Menu]];
 
 		if(PlayState.chartingMode || CoolUtil.difficulties.length > 1) {
 			menuItemsOG.insert(2, ['Change Difficulty', Language.changeDiff]);
@@ -60,6 +60,7 @@ class PauseSubState extends MusicBeatSubstate
 
 		if(PlayState.chartingMode)
 		{
+			menuItemsOG.insert(2, ['Chart Editor', Language.chartEdit]);
 			menuItemsOG.insert(2, ['Leave Charting Mode', Language.leaveChart]);
 			
 			if(!PlayState.instance.startingSong)
@@ -170,18 +171,6 @@ class PauseSubState extends MusicBeatSubstate
 
 		regenMenu();
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
-
-		#if android
-		if (PlayState.chartingMode)
-		{
-				addVirtualPad(FULL, A);
-		}
-		else
-		{
-				addVirtualPad(UP_DOWN, A);
-		}
-		addPadCamera();
-		#end
 	}
 
 	var holdTime:Float = 0;

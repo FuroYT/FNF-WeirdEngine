@@ -44,16 +44,14 @@
 	<classpath name="source" />
 	
 	<!-- PSYCH ENGINE CUSTOMIZATION -->
-	<define name="MODS_ALLOWED" if="desktop || android" />
-	<define name="LUA_ALLOWED" if="desktop || andoird" />
+	<define name="MODS_ALLOWED" if="desktop" />
+	<define name="LUA_ALLOWED" if="desktop" />
 	<define name="ACHIEVEMENTS_ALLOWED" />
-	<define name="VIDEOS_ALLOWED" if="web || windows || android" unless="32bits"/>
+	<define name="VIDEOS_ALLOWED" if="web || windows" unless="32bits"/>
 	<define name="PSYCH_WATERMARKS"/> <!-- DELETE THIS TO REMOVE WATERMARKS/DEV NAMES ON TITLE SCREEN -->
 	<define name="TITLE_SCREEN_EASTER_EGG" if="officialBuild" /> <!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
-	<define name="WEIRD_THEME_USE" if="officialBuildTru" /> <!-- You can dirrectly put themes on preload folder -->
+	<define name="WEIRD_THEME_USE" if="officialBuild	" /> <!-- You can dirrectly put themes on preload folder -->
 	<define name="CRASH_HANDLER" if="desktop release" />
-
-	<assets path="assets/preload/images/android" if="android"/> <!-- to not have the android assets in another builds -saw -->
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3"  unless="web"/>
@@ -69,7 +67,7 @@
 	</section>
 
 	<!-- DONT ENABLE THIS -->
-	<define name="CHECK_FOR_UPDATES" if="desktop officialBuild"/>
+	<define name="CHECK_FOR_UPDATES" if="officialBuild" unless="web"/>
 
 	<!-- <define name="PRELOAD_ALL" /> -->
 	<define name="PRELOAD_ALL" unless="web" />
@@ -152,14 +150,6 @@
 	<!--<haxelib name="polymod"/> -->
 	<haxelib name="discord_rpc" if="desktop"/>
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->
-        <haxelib name="extension-videoview" if="android"/>
-        <haxelib name="extension-androidtools" if="android"/>
-		
-	<android permission="android.permission.ACCESS_NETWORK_STATE"/>
-	<android permission="android.permission.INTERNET"/>
-	<android permission="android.permission.VIBRATE"/>
-	<android permission="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<android permission="android.permission.READ_EXTERNAL_STORAGE"/>
 
 	<!-- <haxelib name="markdown" /> -->
 	<!-- <haxelib name="HtmlParser" /> -->

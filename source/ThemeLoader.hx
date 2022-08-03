@@ -78,7 +78,7 @@ class ThemeLoader
 
 			var disabledMods:Array<String> = [];
 			var modsDirectories:Array<String> = Paths.getModDirectories();
-			var modsListPath:String = SUtil.getPath() + 'modsList.txt';
+			var modsListPath:String = 'modsList.txt';
 			if(FileSystem.exists(modsListPath))
 			{
 				var stuff:Array<String> = CoolUtil.coolTextFile(modsListPath);

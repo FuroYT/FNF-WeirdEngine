@@ -190,18 +190,8 @@ class EditorPlayState extends MusicBeatState
 		FlxG.mouse.visible = false;
 
 		// sayGo();
-		if(!ClientPrefs.keyboardMode)
-			{
-							#if android
-				addHitbox(songMania);
-							_hitbox.visible = true;
-							#end
-			}
-					else if(ClientPrefs.keyboardMode)
-			{
-				FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
-				FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
-			}
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
 		super.create();
 	}
@@ -377,7 +367,7 @@ class EditorPlayState extends MusicBeatState
 	public var spawnTime:Float = 2000;
 	override function update(elapsed:Float)
 	{
-		if (FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end)
+		if (FlxG.keys.justPressed.ESCAPE)
 		{
 			FlxG.sound.music.pause();
 			vocals.pause();
@@ -778,81 +768,24 @@ class EditorPlayState extends MusicBeatState
 		return false;
 	}
 
-		#if android
-	private function hitboxKeysArePressed():Bool
-	{
-			if (_hitbox.array[songMania].pressed) 
-				{
-			return true;
-		}
-		return false;
-	}
-
-	private function hitboxDataKeyIsPressed(data:Int):Bool
-	{
-		if (_hitbox.array[data].pressed) 
-				{
-						return true;
-				}
-		return false;
-	}
-		#end
-
 	private function keyShit():Void
 	{   
-		if(!ClientPrefs.keyboardMode)
-		{
-		        #if android
-		        for (i in 0..._hitbox.array.length) {
-			        if (_hitbox.array[i].justPressed)
-			        {
-				       onKeyPress(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, -1, keysArray[songMania][i][0]));
-			        }
-		        }
-		        #end
-		}
 		// FlxG.watch.addQuick('asdfa', upP);
 		if (generatedMusic)
 		{
 			// rewritten inputs???
 			notes.forEachAlive(function(daNote:Note)
 			{
-				// hold note functions
-				if(!ClientPrefs.keyboardMode)
-					{
-									#if android
-					// hold note functions
-					if (daNote.isSustainNote && hitboxDataKeyIsPressed(daNote.noteData)
-					&& daNote.canBeHit && daNote.mustPress && !daNote.tooLate 
-					&& !daNote.wasGoodHit) {
-					   goodNoteHit(daNote);
-					}
-									#end
-							}
-							else
-							{
-					// hold note functions
-					if (daNote.isSustainNote && dataKeyIsPressed(daNote.noteData)
-					&& daNote.canBeHit && daNote.mustPress && !daNote.tooLate 
-					&& !daNote.wasGoodHit) {
-					   goodNoteHit(daNote);
-					}
-							}
-		});
-	}
 
-		if(!ClientPrefs.keyboardMode)
-	{
-			#if android
-			for (i in 0..._hitbox.array.length) {
-				if (_hitbox.array[i].justReleased)
-				{
-				   onKeyRelease(new KeyboardEvent(KeyboardEvent.KEY_UP, true, true, -1, keysArray[songMania][i][0]));
+				// hold note functions
+				if (daNote.isSustainNote && dataKeyIsPressed(daNote.noteData)
+				&& daNote.canBeHit && daNote.mustPress && !daNote.tooLate 
+				&& !daNote.wasGoodHit) {
+					goodNoteHit(daNote);
 				}
-			}
-			#end
+			});
+		}
 	}
-}
 
 	var combo:Int = 0;
 

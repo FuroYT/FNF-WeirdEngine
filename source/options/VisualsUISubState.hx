@@ -24,9 +24,6 @@ import flixel.util.FlxTimer;
 import flixel.input.keyboard.FlxKey;
 import flixel.graphics.FlxGraphic;
 import Controls;
-#if android
-import android.Hardware;
-#end
 
 using StringTools;
 
@@ -84,25 +81,14 @@ class VisualsUISubState extends BaseOptionsMenu
 		addOption(option);
 
 		#if !mobile
-		var option:Option = new Option(Language.showFPS, Language.showFPSDesc, 'showFPS', 'bool', #if android false #else true #end);
+		var option:Option = new Option(Language.showFPS, Language.showFPSDesc, 'showFPS', 'bool', #if desktop true #else false #end);
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
 		#end
 
 		var option:Option = new Option(Language.pauseMusic, Language.pauseMusicDesc, 'pauseMusic', 'string', 'Breakfast', ['None', 'Breakfast', 'Tea Time']);
 		addOption(option);
-		option.onChange = onChangePauseMusic;
-
-		#if android
-		var option:Option = new Option(Language.vibration,
-			Language.vibrationDesc,
-			'vibration',
-			'bool',
-			false);
-		addOption(option);
-		option.onChange = onChangeGameOverVibration;
-		#end
-		
+		option.onChange = onChangePauseMusic;		
 
 		#if CHECK_FOR_UPDATES
 		var option:Option = new Option(Language.updates,
@@ -147,14 +133,4 @@ class VisualsUISubState extends BaseOptionsMenu
 		if (Main.fpsVar != null)
 			Main.fpsVar.visible = ClientPrefs.showFPS;
 	}
-
-	#if android
-	function onChangeGameOverVibration()
-	{
-		if(ClientPrefs.vibration)
-		{
-			Hardware.vibrate(500);
-		}
-	}
-	#end
 }

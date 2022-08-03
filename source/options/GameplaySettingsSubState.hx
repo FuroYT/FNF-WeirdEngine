@@ -33,15 +33,6 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	{
 		title = Language.gameplay;
 		rpcTitle = 'Gameplay Settings Menu'; //for Discord Rich Presence
-
-			#if android
-		var option:Option = new Option(Language.keyboardMode,
-			Language.keyboardModeDesc,
-			'keyboardMode',
-			'bool',
-			false);
-		addOption(option);
-			#end
 		
 		/*
 		var option:Option = new Option('Controller Mode',

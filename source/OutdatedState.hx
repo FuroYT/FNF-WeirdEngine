@@ -35,10 +35,6 @@ class OutdatedState extends MusicBeatState
 		warnText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
 		warnText.screenCenter(Y);
 		add(warnText);
-
-		#if android
-		addVirtualPad(NONE, A_B);
-		#end
 	}
 
 	override function update(elapsed:Float)

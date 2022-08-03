@@ -14,7 +14,7 @@ import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FlxFrame;
 import flixel.util.FlxColor;
-#if (desktop || android)
+#if desktop
 import sys.FileSystem;
 import sys.io.File;
 #else

@@ -17,7 +17,7 @@ class ClientPrefs
 	public static var downScroll:Bool = false;
 	public static var middleScroll:Bool = false;
 	public static var opponentStrums:Bool = true;
-	public static var showFPS:Bool = #if android false #else true #end;
+	public static var showFPS:Bool = #if desktop true #else false #end;
 	public static var flashing:Bool = true;
 	public static var globalAntialiasing:Bool = true;
 	public static var unfocuPause:Bool = true;
@@ -52,7 +52,6 @@ class ClientPrefs
 		'Q' => [0, 0, 0],
 		'R' => [0, 0, 0]
 	];
-	public static var vibration:Bool = false;
 	public static var imagesPersist:Bool = false;
 	public static var ghostTapping:Bool = true;
 	public static var timeBarType:String = 'Time Left';
@@ -60,8 +59,7 @@ class ClientPrefs
 	public static var cameraMovement:Bool = true;
 	public static var noReset:Bool = false;
 	public static var healthBarAlpha:Float = 1;
-	public static var keyboardMode:Bool = #if android false #else true #end;
-	public static var controllerMode:Bool = #if android true #else false #end;
+	public static var controllerMode:Bool = false;
 	public static var hitsoundVolume:Float = 0;
 	public static var pauseMusic:String = 'Breakfast';
 	public static var subtitles:Bool = true;
@@ -209,7 +207,6 @@ class ClientPrefs
 		FlxG.save.data.noteOffset = noteOffset;
 		FlxG.save.data.hideHud = hideHud;
 		FlxG.save.data.hsv11 = arrowHSV;
-		FlxG.save.data.vibration = vibration;
 		FlxG.save.data.imagesPersist = imagesPersist;
 		FlxG.save.data.ghostTapping = ghostTapping;
 		FlxG.save.data.timeBarType = timeBarType;
@@ -334,9 +331,6 @@ class ClientPrefs
 		if (FlxG.save.data.hsv11 != null && !Std.isOfType(FlxG.save.data.hsv11, Array))
 		{
 			arrowHSV = FlxG.save.data.hsv11;
-		}
-		if(FlxG.save.data.vibration != null) {
-			vibration = FlxG.save.data.vibration;
 		}
 		if (FlxG.save.data.ghostTapping != null)
 		{

@@ -204,11 +204,6 @@ class FunkinLua {
 		set('effectVolume', ClientPrefs.soundEffectVolume);
 		set('noResetButton', ClientPrefs.noReset);
 		set('lowQuality', ClientPrefs.lowQuality);
-		#if android
-		set('vibrations', ClientPrefs.vibration);
-		#else
-		set('vibrations', false);
-		#end
 		set('raitingInStage', ClientPrefs.raitingInStage);
 		set('subtitlesActivated', ClientPrefs.subtitles);
 		set('soundEffectVolume', ClientPrefs.soundEffectVolume);

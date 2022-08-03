@@ -248,11 +248,6 @@ class CharSelectState extends MusicBeatState
             add(iconP1);
 
             FlxG.sound.playMusic(Paths.music('offsetSong'), 1, true);
-
-            #if android
-            addVirtualPad(LEFT_RIGHT, A_B);
-            addPadCamera();
-            #end
             
             super.create();
         }

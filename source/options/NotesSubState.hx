@@ -113,10 +113,6 @@ class NotesSubState extends MusicBeatSubstate
 		add(hsbText);
 
 		changeSelection();
-
-		#if android
-		addVirtualPad(FULL, A_B_C);
-		#end
 	}
 
 	var changingNote:Bool = false;
@@ -137,7 +133,7 @@ class NotesSubState extends MusicBeatSubstate
 					updateValue(1);
 					FlxG.sound.play(Paths.themeSound('optionChange'));
 				}
-				else if (controls.RESET #if android || _virtualpad.buttonC.justPressed #end)
+				else if (controls.RESET)
 				{
 					resetValue(curSelected, typeSelected);
 					FlxG.sound.play(Paths.themeSound('reset'));
@@ -196,7 +192,7 @@ class NotesSubState extends MusicBeatSubstate
 				changeType(1);
 				FlxG.sound.play(Paths.themeSound('scrollMenu'));
 			}
-			if (controls.RESET #if android || _virtualpad.buttonC.justPressed #end)
+			if (controls.RESET)
 			{
 				for (i in 0...3)
 				{
@@ -236,12 +232,7 @@ class NotesSubState extends MusicBeatSubstate
 		{
 			if (!changingNote)
 			{
-					#if android
-				FlxTransitionableState.skipNextTransOut = true;
-				FlxG.resetState();
-					#else
 				close();
-					#end
 			}
 			else
 			{
