@@ -42,6 +42,15 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			false);
 		addOption(option);*/
 
+		//this is a WIP
+		/*var option:Option = new Option('Control Mode:',
+			'What type of control do you want to use?',
+			'controlMode',
+			'string',
+			#if desktop 'keyboard' #elseif mobile 'touch' #else 'controller' #end,
+			["keyboard", "touch", "controller"]);
+		addOption(option);*/
+		
 		//I'd suggest using "Downscroll" as an example for making your own option since it is the simplest here
 		var option:Option = new Option(Language.downScroll, //Name
 			Language.downScrollDesc, //Description

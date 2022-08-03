@@ -60,6 +60,10 @@ class ClientPrefs
 	public static var noReset:Bool = false;
 	public static var healthBarAlpha:Float = 1;
 	public static var controllerMode:Bool = false;
+
+	//this is a WIP
+	//public static var controlMode:String = #if desktop 'keyboard' #elseif mobile 'touch' #else 'controller' #end;
+	
 	public static var hitsoundVolume:Float = 0;
 	public static var pauseMusic:String = 'Breakfast';
 	public static var subtitles:Bool = true;
@@ -227,6 +231,10 @@ class ClientPrefs
 		FlxG.save.data.safeFrames = safeFrames;
 		FlxG.save.data.gameplaySettings = gameplaySettings;
 		FlxG.save.data.controllerMode = controllerMode;
+
+		//this is a WIP
+		//FlxG.save.data.controlMode = controlMode;
+
 		FlxG.save.data.hitsoundVolume = hitsoundVolume;
 		FlxG.save.data.pauseMusic = pauseMusic;
 		FlxG.save.data.subtitles = subtitles;
@@ -388,6 +396,20 @@ class ClientPrefs
 		{
 			controllerMode = FlxG.save.data.controllerMode;
 		}
+		
+		//this is a WIP
+		/*if (FlxG.save.data.controlMode != null)
+		{
+			controlMode = FlxG.save.data.controlMode;
+		}
+		else
+		{
+			if (FlxG.save.data.controllerMode)
+				controlMode = FlxG.save.data.controlMode = 'controller';
+
+			//FlxG.save.data.controllerMode = null;
+		}*/
+
 		if (FlxG.save.data.hitsoundVolume != null)
 		{
 			hitsoundVolume = FlxG.save.data.hitsoundVolume;
