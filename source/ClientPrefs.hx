@@ -226,7 +226,6 @@ class ClientPrefs
 		FlxG.save.data.badWindow = badWindow;
 		FlxG.save.data.safeFrames = safeFrames;
 		FlxG.save.data.gameplaySettings = gameplaySettings;
-		FlxG.save.data.keyboardMode = keyboardMode;
 		FlxG.save.data.controllerMode = controllerMode;
 		FlxG.save.data.hitsoundVolume = hitsoundVolume;
 		FlxG.save.data.pauseMusic = pauseMusic;
@@ -388,9 +387,6 @@ class ClientPrefs
 		if (FlxG.save.data.controllerMode != null)
 		{
 			controllerMode = FlxG.save.data.controllerMode;
-		}
-		if(FlxG.save.data.keyboardMode != null) {
-			keyboardMode = FlxG.save.data.keyboardMode;
 		}
 		if (FlxG.save.data.hitsoundVolume != null)
 		{
