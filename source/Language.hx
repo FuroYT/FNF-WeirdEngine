@@ -180,6 +180,21 @@ typedef LanguageFile =
 	var hitWindowDesc:String;
 	var safeFrames:String;
 	var safeFramesDesc:String;
+
+	//other shit
+	var scoreName:String;
+	var missesName:String;
+	var ratingName:String;
+	var perfectName:String;
+	var sickName:String;
+	var greatName:String;
+	var goodName:String;
+	var niceName:String;
+	var mehName:String;
+	var bruhName:String;
+	var badName:String;
+	var shitName:String;
+	var youSuckName:String;
 }
 
 class Language
@@ -348,6 +363,21 @@ class Language
 	public static var hitWindowDesc:String;
 	public static var safeFrames:String;
 	public static var safeFramesDesc:String;
+
+	//other shit
+	public static var scoreName:String;
+	public static var missesName:String;
+	public static var ratingName:String;
+	public static var perfectName:String;
+	public static var sickName:String;
+	public static var greatName:String;
+	public static var goodName:String;
+	public static var niceName:String;
+	public static var mehName:String;
+	public static var bruhName:String;
+	public static var badName:String;
+	public static var shitName:String;
+	public static var youSuckName:String;
 
 	public static var languagePath:String;
 
@@ -577,5 +607,19 @@ class Language
 		hitWindowDesc = languageJson.hitWindowDesc;
 		safeFrames = languageJson.safeFrames;
 		safeFramesDesc = languageJson.safeFramesDesc;
+
+		scoreName = languageJson.scoreName;
+		missesName = languageJson.missesName;
+		ratingName = languageJson.ratingName;
+		perfectName = languageJson.perfectName;
+		sickName = languageJson.sickName;
+		greatName = languageJson.greatName;
+		goodName = languageJson.goodName;
+		niceName = languageJson.niceName;
+		mehName = languageJson.mehName;
+		bruhName = languageJson.bruhName;
+		badName = languageJson.badName;
+		shitName = languageJson.shitName;
+		youSuckName = languageJson.youSuckName;
 	}
 }

@@ -172,5 +172,20 @@
 	"hitWindow": "@[rating] Hit Window",
 	"hitWindowDesc": "Changes the amount of time you have\nfor hitting a \"@[rating]\" in milliseconds.",
 	"safeFrames": "Safe Frames",
-	"safeFramesDesc": "Changes how many frames you have for\nhitting a note earlier or late."
+	"safeFramesDesc": "Changes how many frames you have for\nhitting a note earlier or late.",
+
+	"scoreName": "Score: ",
+	"missesName": "Misses: ",
+	"ratingName": "Rating: ",
+
+	"youSuckName": "You Suck!",
+	"shitName": "Shit",
+	"badName": "Bad",
+	"bruhName": "Bruh",
+	"mehName": "Meh",
+	"niceName": "Nice",
+	"goodName": "Good",
+	"greatName": "Great",
+	"sickName": "Sick!",
+	"perfectName": "Perfect!!"
 }

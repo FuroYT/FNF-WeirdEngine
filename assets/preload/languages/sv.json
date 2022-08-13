@@ -172,5 +172,20 @@
 	"hitWindow": "@[rating] Tryck på Fönster",
 	"hitWindowDesc": "Ändrar hur lång tid du har\npå att slå en\"@[rating]\" i millisekunder.",
 	"safeFrames": "Säkra Frames",
-	"safeFramesDesc": "Ändrar hur många ramar du har för att\nslå en ton tidigare eller sent."
+	"safeFramesDesc": "Ändrar hur många ramar du har för att\nslå en ton tidigare eller sent.",
+
+	"scoreName": "Göra: ",
+	"missesName": "Missar: ",
+	"ratingName": "Betyg: ",
+
+	"youSuckName": "Du suger!",
+	"shitName": "Skit",
+	"badName": "Dålig",
+	"bruhName": "Bruh",
+	"mehName": "Meh",
+	"niceName": "Trevlig",
+	"goodName": "Bra",
+	"greatName": "Bra",
+	"sickName": "Sjuk!",
+	"perfectName": "Perfekt!!"
 }
