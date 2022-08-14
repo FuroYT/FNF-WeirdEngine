@@ -389,11 +389,13 @@ class AlphaCharacter extends FlxSprite
 	public var row:Int = 0;
 
 	private var textSize:Float = 1;
+	
+	public var name:String = "alphabet";
 
 	public function new(x:Float, y:Float, textSize:Float)
 	{
 		super(x, y);
-		var tex = Paths.getSparrowAtlas('alphabet');
+		var tex = Paths.getSparrowAtlas(name);
 		frames = tex;
 
 		setGraphicSize(Std.int(width * textSize));
@@ -413,8 +415,12 @@ class AlphaCharacter extends FlxSprite
 				y -= 16 * textSize;
 			case 'å':
 				y -= 21 * textSize;
-			case 'é' | 'ô' | 'î' | 'à' | 'ñ' | 'ö':
+			case 'é' | 'î' | 'à' | 'ö'| 'ô':
 				y -= 20 * textSize;
+			case 'á' | 'ó' | 'ú' | 'ñ':
+				y -= 25 * textSize;
+			case 'ê':
+				y -= 30 * textSize;
 		}
 	}
 
@@ -441,6 +447,10 @@ class AlphaCharacter extends FlxSprite
 				animation.addByPrefix(letter, 'bold (', 24);
 			case ")":
 				animation.addByPrefix(letter, 'bold )', 24);
+			case "$":
+				animation.addByPrefix(letter, '$', 24);
+			case '^':
+				animation.addByPrefix(letter, '^ bold', 24);
 			default:
 				animation.addByPrefix(letter, 'bold ' + letter, 24);
 		}
