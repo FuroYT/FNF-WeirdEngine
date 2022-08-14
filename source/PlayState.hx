@@ -3511,10 +3511,9 @@ class PlayState extends MusicBeatState
 		// RESET = Quick Game Over Screen
 		if (!ClientPrefs.noReset && controls.RESET && canReset && !inCutscene && startedCountdown && !endingSong)
 		{
-			health = 0;
+			doDeathCheck(true);
 			trace("RESET = True");
 		}
-		doDeathCheck();
 
 		if (unspawnNotes[0] != null)
 		{
