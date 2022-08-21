@@ -3514,6 +3514,7 @@ class PlayState extends MusicBeatState
 			doDeathCheck(true);
 			trace("RESET = True");
 		}
+		doDeathCheck();
 
 		if (unspawnNotes[0] != null)
 		{
