@@ -1,3 +1,0 @@
-files:
-  - source: assets/preload/languages/en.json
-    translation: assets/preload/languages/%two_letters_code%.json
