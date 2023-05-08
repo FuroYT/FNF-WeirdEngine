@@ -135,15 +135,32 @@ class DialogueBox extends FlxSpriteGroup
 		}
 
 		dropText = new FlxText(242, 502, Std.int(FlxG.width * 0.6), "", 32);
-		dropText.font = 'Pixel Arial 11 Bold';
 		dropText.color = 0xFFD89494;
 		add(dropText);
 
 		swagDialogue = new FlxTypeText(240, 500, Std.int(FlxG.width * 0.6), "", 32);
-		swagDialogue.font = 'Pixel Arial 11 Bold';
 		swagDialogue.color = 0xFF3F2021;
 		swagDialogue.sounds = [FlxG.sound.load(Paths.sound('pixelText'), 0.6)];
 		add(swagDialogue);
+
+		switch(ClientPrefs.language)
+		{
+			case "English" | "Español" | "Français" | "Português" | "Svenska" | "Русский": //English, Spanish, French, Portuguese, Swedish, Russian
+				swagDialogue.font = Paths.font("NotoSans-Bold.ttf");
+				dropText.font = Paths.font("NotoSans-Bold.ttf");
+			case "한국": //Refering in South Korea, Korean
+				swagDialogue.font = Paths.font("NotoSansKR-Bold.otf");
+				dropText.font = Paths.font("NotoSansKR-Bold.otf");
+			case "العربية": //Arabic
+				swagDialogue.font = Paths.font("NotoNaskhArabic-Bold.ttf");
+				dropText.font = Paths.font("NotoNaskhArabic-Bold.ttf");
+			case "日本": //Japanese
+				swagDialogue.font = Paths.font("NotoSansJP-Bold.ttf");
+				dropText.font = Paths.font("NotoSansJP-Bold.ttf");
+			case "中文": //Chinese (Tradional)
+				swagDialogue.font = Paths.font("NotoSansTC-Bold.otf");
+				dropText.font = Paths.font("NotoSansTC-Bold.otf");
+		}
 
 		dialogue = new Alphabet(0, 80, "", false, true);
 		// dialogue.x = 90;

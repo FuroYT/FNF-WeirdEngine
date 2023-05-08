@@ -26,9 +26,22 @@ class FlashingState extends MusicBeatState
 		warnText = new FlxText(0, 0, FlxG.width,
 			Language.flashingInfo,
 			32);
-		warnText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
+		warnText.setFormat(Paths.font("NotoSans-Bold.ttf"), 32, FlxColor.WHITE, CENTER);
 		warnText.screenCenter(Y);
 		add(warnText);
+		switch(ClientPrefs.language)
+		{
+			case "English" | "Español" | "Français" | "Português" | "Svenska" | "Русский": //English, Spanish, French, Portuguese, Swedish, Russian
+				warnText.font = Paths.font("NotoSans-Bold.ttf");
+			case "한국": //Refering in South Korea, Korean
+				warnText.font = Paths.font("NotoSansKR-Bold.otf");
+			case "العربية": //Arabic
+				warnText.font = Paths.font("NotoNaskhArabic-Bold.ttf");
+			case "日本": //Japanese
+				warnText.font = Paths.font("NotoSansJP-Bold.ttf");
+			case "中文": //Chinese (Tradional)
+				warnText.font = Paths.font("NotoSansTC-Bold.otf");
+		}
 	}
 
 	override function update(elapsed:Float)

@@ -165,7 +165,21 @@ class FreeplayState extends MusicBeatState
 		WeekData.setDirectoryFromWeek();
 
 		scoreText = new FlxText(FlxG.width * 0.5, 5, 0, "", 32);
-		scoreText.setFormat(Paths.font(ThemeLoader.fontName), 32, FlxColor.WHITE, RIGHT);
+		scoreText.setFormat(Paths.font("NotoSans-Bold.ttf"), 32, FlxColor.WHITE, RIGHT);
+
+		switch(ClientPrefs.language)
+		{
+			case "English" | "Español" | "Français" | "Português" | "Svenska" | "Русский": //English, Spanish, French, Portuguese, Swedish, Russian
+				scoreText.font = Paths.font("NotoSans-Bold.ttf");
+			case "한국": //Refering in South Korea, Korean
+				scoreText.font = Paths.font("NotoSansKR-Bold.otf");
+			case "العربية": //Arabic
+				scoreText.font = Paths.font("NotoNaskhArabic-Bold.ttf");
+			case "日本": //Japanese
+				scoreText.font = Paths.font("NotoSansJP-Bold.ttf");
+			case "中文": //Chinese (Tradional)
+				scoreText.font = Paths.font("NotoSansTC-Bold.otf");
+		}
 
 		diffText = new FlxText(scoreText.x, scoreText.y + scoreText.height, 0, "", 24);
 		diffText.font = scoreText.font;
@@ -226,7 +240,20 @@ class FreeplayState extends MusicBeatState
 		var size:Int = 18;
 		
 		var text:FlxText = new FlxText(textBG.x, textBG.y + 4, FlxG.width, leText, size);
-		text.setFormat(Paths.font(ThemeLoader.fontName), size, FlxColor.WHITE, RIGHT);
+		text.setFormat(Paths.font("NotoSans-Bold.ttf"), size, FlxColor.WHITE, RIGHT);
+		switch(ClientPrefs.language)
+		{
+			case "English" | "Español" | "Français" | "Português" | "Svenska" | "Русский": //English, Spanish, French, Portuguese, Swedish, Russian
+				text.font = Paths.font("NotoSans-Bold.ttf");
+			case "한국": //Refering in South Korea, Korean
+				text.font = Paths.font("NotoSansKR-Bold.otf");
+			case "العربية": //Arabic
+				text.font = Paths.font("NotoNaskhArabic-Bold.ttf");
+			case "日本": //Japanese
+				text.font = Paths.font("NotoSansJP-Bold.ttf");
+			case "中文": //Chinese (Tradional)
+				text.font = Paths.font("NotoSansTC-Bold.otf");
+		}
 		text.scrollFactor.set();
 		add(text);
 

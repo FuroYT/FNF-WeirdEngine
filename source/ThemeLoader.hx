@@ -27,7 +27,7 @@ typedef ThemeFile =
 	var offsetBF:String;
 	var offsetBFpos:Array<Float>;
 	var offsetBPM:Float;
-	var fontName:String;
+	//var fontName:String;
 }
 
 class ThemeLoader
@@ -46,7 +46,7 @@ class ThemeLoader
 	public static var offsetBF:String;
 	public static var offsetBFpos:Array<Float>;
 	public static var offsetBPM:Float;
-	public static var fontName:String;
+	//public static var fontName:String;
 
 	inline static public function getThemeProperties(?theme:String = null)
 	{
@@ -211,6 +211,6 @@ class ThemeLoader
 		offsetBF = themeJSON.offsetBF;
 		offsetBFpos = themeJSON.offsetBFpos;
 		offsetBPM = themeJSON.offsetBPM;
-		fontName = themeJSON.fontName;
+		//fontName = themeJSON.fontName;
 	}
 }
